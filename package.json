@@ -1,0 +1,52 @@
+{
+  "name": "attendandt",
+  "version": "1.0.0",
+  "description": "A comprehensive guest management and concierge service platform",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --parallel --stream dev",
+    "build": "pnpm --recursive build",
+    "test": "pnpm --recursive test",
+    "lint": "pnpm --recursive lint",
+    "clean": "pnpm --recursive clean",
+    "type-check": "pnpm --recursive type-check",
+    "dev:frontend": "pnpm --filter @attendandt/frontend dev",
+    "dev:backend": "pnpm --filter @attendandt/backend dev",
+    "build:frontend": "pnpm --filter @attendandt/frontend build",
+    "build:backend": "pnpm --filter @attendandt/backend build",
+    "db:studio": "pnpm --filter @attendandt/backend db:studio",
+    "db:migrate": "pnpm --filter @attendandt/backend db:migrate",
+    "db:reset": "pnpm --filter @attendandt/backend db:reset",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "eslint": "^8.47.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.6.0",
+  "keywords": [
+    "hospitality",
+    "guest-management",
+    "concierge",
+    "monorepo",
+    "react",
+    "express",
+    "typescript"
+  ],
+  "author": "Attendandt Team",
+  "license": "MIT",
+  "dependencies": {
+    "express-rate-limit": "^7.5.1"
+  }
+}

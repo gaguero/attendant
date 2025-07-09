@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User model - Core authentication and user management
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  role      UserRole @default(STAFF)
+  
+  // Contact & preferences fields (Step 8)
+  phone           String?
+  addressLine1    String?  @map("address_line1")
+  addressLine2    String?  @map("address_line2")
+  city            String?
+  stateOrProvince String?  @map("state_or_province")
+  postalCode      String?  @map("postal_code")
+  country         String?
+  preferences     Json?
+  notes           String?  @db.Text
+  theme           String?
+  
+  // Supabase Auth integration
+  authId    String?  @unique @map("auth_id") // Supabase auth.users.id
+  passwordHash String? @map("password_hash") // bcrypt hashed password
+  
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Future relationships (will be added in later steps)
+  // guests     Guest[]     // Step 9: Guest management
+  // vendors    Vendor[]    // Step 11: Vendor management  
+  // requests   ConciergeRequest[] // Step 13: Concierge requests
+  
+  bio       String?  @db.Text
+  avatarUrl String?
+  
+  // Relationships
+  createdGuests Guest[] @relation("CreatedBy")
+  vendorsCreated Vendor[] @relation("VendorCreatedBy")
+  passwordResetTokens PasswordResetToken[]
+  auditLogs          AuditLog[]
+  
+  @@map("users")
+}
+
+model Guest {
+  id              String      @id @default(uuid())
+  firstName       String      @map("first_name")
+  lastName        String      @map("last_name")
+  email           String      @unique
+  phone           String?
+  dateOfBirth     DateTime?   @map("date_of_birth")
+  
+  addressLine1    String?
+  addressLine2    String?
+  city            String?
+  stateOrProvince String?
+  postalCode      String?
+  country         String?
+  
+  preferences     Json?       @map("preferences")
+  externalBookingIds String[] @default([]) @map("external_booking_ids")
+  notes           String?     @db.Text
+  
+  status          GuestStatus @default(ACTIVE)
+  
+  // Relationships
+  createdById     String      @db.Uuid @map("created_by_id")
+  createdBy       User        @relation("CreatedBy", fields: [createdById], references: [id])
+  
+  // Metadata
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  @@map("guests")
+}
+
+enum GuestStatus {
+  ACTIVE
+  INACTIVE
+  VIP
+  BLACKLISTED
+  
+  @@map("guest_status")
+}
+
+// User role enumeration for RBAC
+enum UserRole {
+  ADMIN     // Full system access
+  STAFF     // Standard hotel staff access
+  CONCIERGE // Concierge-specific access
+  VIEWER    // Read-only access
+  
+  @@map("user_role")
+}
+
+enum VendorCategory {
+  FOOD
+  TRANSPORT
+  ENTERTAINMENT
+  MAINTENANCE
+  OTHER
+
+  @@map("vendor_category")
+}
+
+model Vendor {
+  id            String         @id @default(uuid())
+  name          String
+  contactPerson String?        @map("contact_person")
+  category      VendorCategory @default(OTHER)
+  servicesOffered String[]     @default([]) @map("services_offered")
+  rating        Float          @default(0)
+  phone         String?
+  email         String?
+  website       String?
+  notes         String?        @db.Text
+
+  createdById   String         @db.Uuid @map("created_by_id")
+  createdBy     User           @relation("VendorCreatedBy", fields: [createdById], references: [id])
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@map("vendors")
+}
+
+// Password reset token model for secure password recovery
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @db.Uuid @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("password_reset_tokens")
+}
+
+// Audit log model to track profile updates and other user actions
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String   @db.Uuid @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // e.g., "UPDATE_PROFILE"
+  newData   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+} 
