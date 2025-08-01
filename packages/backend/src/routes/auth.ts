@@ -6,7 +6,6 @@ import {
   generateAuthResponse,
   blacklistToken,
   extractTokenFromHeader,
-  verifyAccessToken,
 } from '../lib/auth.js';
 import {
   LoginDto,
@@ -304,7 +303,7 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
   try {
     // Validate request body
     const validatedData = RefreshTokenDto.parse(req.body);
-    const { refreshToken } = validatedData;
+    const { refreshToken: _refreshToken } = validatedData;
 
     // In a real implementation, you would:
     // 1. Store refresh tokens in database with expiration

@@ -1,18 +1,28 @@
-# Attendandt
+# Attendandt - Smart Hospitality Operations Platform
 
-A comprehensive guest management and concierge service platform designed for hospitality businesses.
+A comprehensive hospitality operations platform that integrates deeply with the Mews Property Management System (PMS) to provide real-time data synchronization, intelligent guest profile management, and streamlined operations for hotel staff.
 
 ## Overview
 
-Attendandt combines guest profile management, vendor directory services, and concierge request handling with advanced data ingestion and discrepancy detection capabilities.
+Attendandt is designed to move beyond basic property management and create a proactive, data-driven operational tool. By enriching guest data, automating workflows, and providing actionable insights, the platform empowers staff to deliver personalized, high-quality service efficiently.
 
-## Features
+## Current Status
 
-- **Guest Profile Management** - Complete CRUD operations for guest information
-- **Vendor Directory** - Searchable directory of service providers
-- **Concierge Services** - Request management system linking guests to vendors
-- **Data Ingestion** - Automated data import from multiple sources
-- **Discrepancy Detection** - Automated detection and resolution of data inconsistencies
+**Phase 1: Foundation & Core Integration** ✅ **COMPLETED**
+
+- ✅ Mews API Integration with authentication and rate limiting
+- ✅ Real-time WebSocket connections for live updates
+- ✅ Database schema with sync tracking fields
+- ✅ Bidirectional sync framework ready for implementation
+
+## Features (Implemented)
+
+- **Mews Integration** - Real-time synchronization with Mews PMS
+- **WebSocket Connections** - Live event handling from Mews
+- **Database Sync Tracking** - Comprehensive sync status monitoring
+- **Authentication System** - Dual auth (Supabase + custom)
+- **Rate Limiting** - Respects Mews API limits (500 requests/15min)
+- **Error Handling** - Robust retry logic with exponential backoff
 
 ## Technology Stack
 
@@ -23,7 +33,6 @@ Attendandt combines guest profile management, vendor directory services, and con
 - React Router v6 for client-side navigation
 - Zustand for global state management
 - React Query (TanStack Query) for server state
-- Formik with Yup validation
 
 ### Backend
 - Node.js 18+ with TypeScript
@@ -32,14 +41,20 @@ Attendandt combines guest profile management, vendor directory services, and con
 - Supabase Auth for JWT-based authentication
 - Zod for runtime type checking
 - Winston for structured logging
-- Redis for performance optimization
+- Axios for HTTP client with retry logic
+- WebSocket client for real-time connections
 
 ### Database & Infrastructure
 - PostgreSQL via Supabase
 - Row Level Security (RLS) policies
 - Railway for production hosting
 - Docker for development environment
-- GitHub Actions for CI/CD
+
+### Mews Integration
+- REST API client with authentication
+- WebSocket client for real-time events
+- Rate limiting and error handling
+- Sync tracking with `mewsId` and `syncedAt` fields
 
 ## Project Structure
 
@@ -48,9 +63,14 @@ Attendandt/
 ├── packages/
 │   ├── frontend/          # React + Vite + TypeScript
 │   ├── backend/           # Node.js + Express + TypeScript
+│   │   ├── src/
+│   │   │   ├── lib/       # Core libraries (mews.ts, mews.ws.ts)
+│   │   │   ├── services/  # Business logic services
+│   │   │   ├── routes/    # API endpoints
+│   │   │   └── config/    # Configuration management
+│   │   └── prisma/        # Database schema and migrations
 │   └── shared/            # Common types and DTOs
 ├── memory-bank/           # Project context and documentation
-├── docker-compose.yml     # Development environment
 ├── pnpm-workspace.yaml    # Workspace configuration
 └── TASKS.md              # Implementation roadmap
 ```
@@ -59,10 +79,9 @@ Attendandt/
 
 - Node.js 18+
 - pnpm 8+
-- Docker and Docker Compose
 - Git
 - Supabase account
-- Railway account (for deployment)
+- Mews API credentials (demo environment available)
 
 ## Getting Started
 
@@ -81,159 +100,82 @@ pnpm install
 
 ### 3. Set up environment variables
 
-Copy the example environment files and fill in your values:
+Create environment files for backend and frontend:
 
 ```bash
 # Backend environment
 cp packages/backend/.env.example packages/backend/.env
+# Add your Mews API credentials and database URLs
 
-# Frontend environment
+# Frontend environment  
 cp packages/frontend/.env.example packages/frontend/.env
 ```
 
-### 4. Start development environment
+### 4. Start development servers
 
 ```bash
-# Start Docker services (PostgreSQL, Redis)
-pnpm docker:up
-
-# Run database migrations
-pnpm db:migrate
-
-# Start development servers
-pnpm dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000
-
-## Development Scripts
-
-### Root Level Commands
-
-```bash
-# Start all development servers
+# Start both frontend and backend
 pnpm dev
 
-# Build all packages
-pnpm build
-
-# Run tests across all packages
-pnpm test
-
-# Lint all packages
-pnpm lint
-
-# Type check all packages
-pnpm type-check
+# Or start individually
+pnpm dev:frontend  # Frontend on port 5173
+pnpm dev:backend   # Backend on port 3003
 ```
 
-### Package-Specific Commands
+### 5. Test Mews Integration
+
+The application will automatically:
+- Connect to Mews API with your credentials
+- Establish WebSocket connection for real-time events
+- Log incoming events for verification
+
+## Development
+
+### Available Scripts
 
 ```bash
-# Frontend only
-pnpm dev:frontend
-pnpm build:frontend
+# Development
+pnpm dev              # Start all development servers
+pnpm dev:frontend     # Frontend only
+pnpm dev:backend      # Backend only
 
-# Backend only
-pnpm dev:backend
-pnpm build:backend
+# Building
+pnpm build            # Build all packages
+pnpm type-check       # TypeScript validation
 
-# Database operations
-pnpm db:studio      # Open Prisma Studio
-pnpm db:migrate     # Run migrations
-pnpm db:reset       # Reset database
+# Database
+pnpm db:generate      # Generate Prisma client
+pnpm db:studio        # Open Prisma Studio
+pnpm db:migrate       # Run migrations
+
+# Testing
+pnpm test             # Run tests
 ```
 
-### Docker Commands
+### Mews Integration Testing
 
-```bash
-# Start development services
-pnpm docker:up
+The platform includes comprehensive Mews integration:
 
-# Stop development services
-pnpm docker:down
+- **API Client**: `packages/backend/src/lib/mews.ts`
+- **WebSocket Client**: `packages/backend/src/lib/mews.ws.ts`
+- **Sync Service**: `packages/backend/src/services/sync.service.ts`
 
-# View logs
-pnpm docker:logs
-```
+## Next Steps
 
-## Environment Variables
-
-### Backend (.env)
-
-```bash
-DATABASE_URL="postgresql://..."
-SUPABASE_URL="https://..."
-SUPABASE_ANON_KEY="..."
-SUPABASE_SERVICE_ROLE_KEY="..."
-JWT_SECRET="..."
-REDIS_URL="redis://localhost:6379"
-PORT=3000
-```
-
-### Frontend (.env)
-
-```bash
-VITE_SUPABASE_URL="https://..."
-VITE_SUPABASE_ANON_KEY="..."
-VITE_API_URL="http://localhost:3000"
-```
-
-## Implementation Roadmap
-
-The project follows a 20-step implementation plan organized into 6 sections:
-
-1. **Project Foundation & Core Setup** (Steps 1-5)
-2. **Authentication & User Management** (Steps 6-8)
-3. **Guest Profile Management** (Steps 9-10)
-4. **Vendor & Concierge Services** (Steps 11-14)
-5. **Data Ingestion & Optimization** (Steps 15-18)
-6. **Finalization & Deployment** (Steps 19-20)
-
-See [TASKS.md](./TASKS.md) for detailed implementation steps.
-
-## Architecture
-
-### Monorepo Structure
-- **Shared Package**: Common types, DTOs, and constants
-- **Frontend Package**: React application with Tailwind UI
-- **Backend Package**: Express API with Prisma ORM
-
-### Security
-- JWT-based authentication with Supabase Auth
-- Role-Based Access Control (RBAC)
-- Row Level Security (RLS) policies
-- Input validation on client and server
-- Security headers with Helmet.js
-
-### Performance
-- React Query for client-side caching
-- Redis for server-side caching
-- Optimized database queries with Prisma
-- Code splitting and lazy loading
+The project is ready for **Phase 2: Smart Data Management**, which will include:
+- Guest Profile Completeness Scoring
+- Data Gap Detection
+- Auto-enrichment rules
+- Configurable validation
 
 ## Contributing
 
-1. Follow the implementation steps in TASKS.md
-2. Update the memory-bank documentation as needed
-3. Maintain TypeScript strict mode compliance
-4. Write tests for new features
-5. Follow the established code patterns
-
-## Deployment
-
-The application is designed to deploy on Railway with:
-- Automatic builds from Git
-- Environment variable management
-- Database migrations on deploy
-- CDN for static assets
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-## Support
-
-For questions or issues, please refer to the memory-bank documentation or create an issue in the repository. 
+[Add your license here] 

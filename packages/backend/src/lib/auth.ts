@@ -184,7 +184,7 @@ export function generateAuthResponse(user: User): AuthResponseDto {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: (user.role as unknown as string).toLowerCase() as any,
+      role: user.role?.toLowerCase() as any,
     },
     tokens,
   };

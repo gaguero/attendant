@@ -99,8 +99,8 @@ export interface User extends BaseEntity {
   passwordHash: string | null;
 }
 
-// Profile DTO type
-export interface ProfileDto {
+// Profile interface (DTO is defined in dto/profile.dto.ts)
+export interface Profile {
   id: string;
   email: string;
   firstName: string | null;

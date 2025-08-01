@@ -1,5 +1,5 @@
 // packages/backend/src/lib/mews.ts
-import axios, { AxiosInstance } from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
 import { mewsConfig } from '../config';
 import { logger } from './logger';
@@ -16,7 +16,7 @@ const rateLimiter = async () => {
   );
 
   if (requestTimestamps.length >= RATE_LIMIT_COUNT) {
-    const timeToWait = RATE_LIMIT_WINDOW - (now - requestTimestamps[0]);
+    const timeToWait = RATE_LIMIT_WINDOW - (now - (requestTimestamps[0] || now));
     logger.warn(`Mews API rate limit reached. Waiting for ${timeToWait}ms`);
     await new Promise((resolve) => setTimeout(resolve, timeToWait));
   }
