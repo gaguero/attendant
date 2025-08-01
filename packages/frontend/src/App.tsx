@@ -6,6 +6,7 @@ import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Dashboard from './components/Dashboard';
+import { DashboardPage } from './pages/DashboardPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ProfilePage from './pages/ProfilePage';
 import GuestsPage from './pages/GuestsPage';
@@ -45,7 +46,7 @@ function App() {
                 }
               >
                 <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route 
                   path="guests" 

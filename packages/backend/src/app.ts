@@ -11,6 +11,7 @@ import guestRoutes from './routes/guests.js';
 import vendorRoutes from './routes/vendors.js';
 import completenessRoutes from './routes/completeness.js';
 import businessRulesRoutes from './routes/businessRules.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 // Create Express application
 const app: Express = express();
@@ -118,6 +119,7 @@ app.use('/api/v1/vendors', vendorRoutes);
 // Data intelligence routes
 app.use('/api/v1/completeness', completenessRoutes);
 app.use('/api/v1/business-rules', businessRulesRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // 404 handler for undefined routes
 app.use('*', (req, res) => {
