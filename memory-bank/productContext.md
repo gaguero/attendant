@@ -1,92 +1,31 @@
-# Product Context: Attendandt
+# Product Context: The "Why" Behind the Platform
 
-## Why This Project Exists
+## 1. The Problem
 
-### Problem Statement
-Hospitality businesses struggle with fragmented guest management systems that don't integrate well with vendor services and concierge operations. Current solutions often lack:
-- Unified guest profile management
-- Efficient vendor directory integration
-- Streamlined concierge request workflows
-- Automated data synchronization
-- Real-time discrepancy detection
+In the modern hospitality industry, guest expectations are higher than ever. Travelers seek personalized experiences, seamless service, and proactive communication. However, hotel operations are often fragmented, relying on manual processes and disconnected systems. This leads to several critical problems:
 
-### Target Users
-1. **Hotel Staff** - Front desk, concierge, and management personnel
-2. **Concierge Services** - Staff managing guest requests and vendor coordination
-3. **Administrators** - System administrators managing data ingestion and configurations
-4. **Guests** - End users receiving services (indirect interaction)
+*   **Incomplete Guest Information**: Staff often lack a complete picture of a guest's needs and preferences before they arrive, making it difficult to personalize their stay.
+*   **Reactive Service Model**: Without real-time insights, staff are often in a reactive mode, responding to issues as they arise rather than anticipating and preventing them.
+*   **Operational Inefficiencies**: Manual data entry, poor communication between departments, and a lack of automation lead to wasted time, increased costs, and a higher risk of errors.
+*   **Missed Revenue Opportunities**: Without a clear view of guest needs and service availability, hotels miss out on opportunities to offer and sell ancillary services.
+*   **Disconnected Guest Journey**: The guest experience is often disjointed, with different touchpoints (booking, check-in, in-stay services, check-out) feeling disconnected from one another.
 
-## How It Should Work
+## 2. The Solution: A Smart Operations Hub
 
-### Core User Workflows
+Our platform addresses these problems by acting as a central nervous system for hotel operations, with the Mews PMS at its core. It's not just another dashboard; it's an intelligent system designed to empower staff and enhance the guest experience.
 
-#### Guest Management Flow
-1. Staff creates/updates guest profiles with comprehensive information
-2. System validates data and provides immediate feedback
-3. Guest information is available across all service touchpoints
-4. Historical data is maintained for repeat guests
+### How It Works
 
-#### Vendor Directory Flow
-1. Administrators manage vendor profiles and service categories
-2. Staff can search and filter vendors by service type, location, rating
-3. Vendor information is easily accessible during concierge requests
-4. System tracks vendor performance and availability
+1.  **Unified Data**: The platform syncs with Mews in real-time, creating a single source of truth for reservations and guest data.
+2.  **Intelligent Profiles**: It then enriches this data, identifying gaps and scoring profiles for "arrival readiness." This gives staff a clear, actionable view of each guest.
+3.  **Proactive Operations**: The real-time dashboard visualizes key operational metrics, allowing staff to anticipate needs, manage tasks, and track service requests from a single interface.
+4.  **Seamless Service**: The platform streamlines the entire service lifecycle, from a guest's request to vendor fulfillment and automatic billing in Mews.
+5.  **Actionable Insights**: By analyzing data, the platform provides predictive insights, helping management optimize staffing, pricing, and service offerings.
 
-#### Concierge Request Flow
-1. Staff creates requests linking guests to specific services
-2. Multi-step wizard guides through request creation
-3. System suggests appropriate vendors based on request type
-4. Request status is tracked through completion
-5. Historical request data informs future recommendations
+## 3. User Experience Goals
 
-#### Data Ingestion Flow
-1. Administrators configure data sources and ingestion rules
-2. System automatically imports data from external sources
-3. Discrepancy detection identifies data conflicts
-4. Staff resolves discrepancies through guided interface
-5. Clean data is integrated into the main system
-
-## User Experience Goals
-
-### Primary UX Principles
-- **Clarity**: Every action should have clear, immediate feedback
-- **Efficiency**: Common tasks should be completed quickly
-- **Consistency**: UI patterns should be predictable across features
-- **Accessibility**: Interface should be usable by all staff members
-- **Reliability**: System should handle errors gracefully
-
-### Specific UX Requirements
-- **Loading States**: Skeleton loaders during data fetching
-- **Error Handling**: Clear, actionable error messages
-- **Form Validation**: Real-time validation with helpful guidance
-- **Navigation**: Intuitive sidebar navigation with clear hierarchy
-- **Responsive Design**: Works well on desktop and tablet devices
-
-### Screen States Implementation
-- **Empty States**: Helpful guidance when no data exists
-- **Loading States**: Clear indication of system activity
-- **Error States**: Specific error messages with recovery options
-- **Success States**: Confirmation of completed actions
-
-## Business Value
-
-### Operational Benefits
-- Reduced time spent managing guest information
-- Improved vendor relationship management
-- Streamlined concierge operations
-- Automated data synchronization
-- Proactive error detection and resolution
-
-### Strategic Benefits
-- Enhanced guest experience through better service coordination
-- Data-driven insights into guest preferences and vendor performance
-- Scalable platform that grows with business needs
-- Reduced operational costs through automation
-- Improved staff productivity and satisfaction
-
-## Success Metrics
-- Time to complete guest check-in process
-- Concierge request resolution time
-- Data accuracy percentage
-- User satisfaction scores
-- System uptime and reliability metrics 
+*   **Clarity and Focus**: The interface should be clean, intuitive, and focused on the task at hand. It should reduce cognitive load, not add to it.
+*   **Efficiency**: Workflows should be streamlined and automated wherever possible. Staff should be able to complete common tasks with minimal clicks.
+*   **Confidence**: The platform should be a reliable source of truth, giving staff the confidence to make decisions and interact with guests.
+*   **Proactivity**: The design should encourage a proactive approach to hospitality, surfacing important information and opportunities before they become critical.
+*   **Accessibility**: The platform must be fully usable on a range of devices, particularly mobile, to support staff wherever they are.

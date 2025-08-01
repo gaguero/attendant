@@ -13,7 +13,7 @@ router.use(requireAuth, requireStaff);
  * GET /guests
  * Get a paginated list of guests
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -39,6 +39,7 @@ router.get('/', async (req, res) => {
   } catch (error) {
     logger.error('Failed to get guests', { error });
     res.status(500).json({ success: false, error: 'Failed to retrieve guests' });
+    return;
   }
 });
 
@@ -46,7 +47,7 @@ router.get('/', async (req, res) => {
  * POST /guests
  * Create a new guest profile
  */
-router.post('/', async (req, res) => {
+router.post('/', async (req, res): Promise<void> => {
   try {
     const validatedData = CreateGuestDto.parse(req.body);
     const guest = await prisma.guest.create({
@@ -59,6 +60,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     logger.error('Failed to create guest', { error });
     res.status(400).json({ success: false, error: 'Invalid guest data provided' });
+    return;
   }
 });
 
@@ -66,7 +68,7 @@ router.post('/', async (req, res) => {
  * GET /guests/:id
  * Get a single guest profile by ID
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res): Promise<void> => {
   try {
     const guest = await prisma.guest.findUnique({
       where: { id: req.params.id },
@@ -75,9 +77,11 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Guest not found' });
     }
     res.status(200).json({ success: true, data: guest });
+    return;
   } catch (error) {
     logger.error(`Failed to get guest ${req.params.id}`, { error });
     res.status(500).json({ success: false, error: 'Failed to retrieve guest' });
+    return;
   }
 });
 
@@ -85,7 +89,7 @@ router.get('/:id', async (req, res) => {
  * PUT /guests/:id
  * Update a guest's profile
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res): Promise<void> => {
   try {
     const validatedData = UpdateGuestDto.parse(req.body);
     const guest = await prisma.guest.update({
@@ -93,9 +97,11 @@ router.put('/:id', async (req, res) => {
       data: validatedData,
     });
     res.status(200).json({ success: true, data: guest });
+    return;
   } catch (error) {
     logger.error(`Failed to update guest ${req.params.id}`, { error });
     res.status(400).json({ success: false, error: 'Invalid data for update' });
+    return;
   }
 });
 
@@ -103,15 +109,17 @@ router.put('/:id', async (req, res) => {
  * DELETE /guests/:id
  * Delete a guest's profile
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res): Promise<void> => {
   try {
     await prisma.guest.delete({
       where: { id: req.params.id },
     });
     res.status(204).send();
+    return;
   } catch (error) {
     logger.error(`Failed to delete guest ${req.params.id}`, { error });
     res.status(500).json({ success: false, error: 'Failed to delete guest' });
+    return;
   }
 });
 

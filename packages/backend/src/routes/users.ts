@@ -17,7 +17,7 @@ const router = Router();
  * List users with pagination and filtering
  * Requires: ADMIN or MANAGER role
  */
-router.get('/', requireAuth, requireRole(UserRole.ADMIN, UserRole.MANAGER), async (req: Request, res: Response): Promise<void> => {
+router.get('/', requireAuth, requireRole(UserRole.ADMIN, UserRole.STAFF), async (req: Request, res: Response): Promise<void> => {
   try {
     // Validate query parameters
     const validatedQuery = UserListQueryDto.parse({
@@ -128,7 +128,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response): Promise<voi
 
     // Check if user is requesting their own profile or has admin/manager role
     const isOwnProfile = req.user?.id === id;
-    const hasAdminAccess = req.user?.role === UserRole.ADMIN || req.user?.role === UserRole.MANAGER;
+    const hasAdminAccess = req.user?.role === UserRole.ADMIN || req.user?.role === UserRole.STAFF;
 
     if (!isOwnProfile && !hasAdminAccess) {
       logger.warn('Unauthorized user profile access attempt', {

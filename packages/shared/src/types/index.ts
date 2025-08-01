@@ -19,10 +19,10 @@ export interface PaginatedResponse<T = any> {
 
 // User role types (Step 6)
 export enum UserRole {
-  ADMIN = 'admin',
-  STAFF = 'staff',
-  CONCIERGE = 'concierge',
-  VIEWER = 'viewer'
+  ADMIN = 'ADMIN',
+  STAFF = 'STAFF',
+  CONCIERGE = 'CONCIERGE',
+  VIEWER = 'VIEWER'
 }
 
 // Common entity types
@@ -87,4 +87,50 @@ export interface Vendor extends BaseEntity {
   website?: string;
   notes?: string;
   createdById: string;
+}
+
+// User interface from Prisma
+export interface User extends BaseEntity {
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  role: UserRole;
+  authId: string | null;
+  passwordHash: string | null;
+}
+
+// Profile DTO type
+export interface ProfileDto {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Transaction context interface
+export interface TransactionContext {
+  userId?: string;
+  userRole?: UserRole;
+  requestId: string;
+  timestamp: Date;
+}
+
+// Pagination interfaces
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 } 

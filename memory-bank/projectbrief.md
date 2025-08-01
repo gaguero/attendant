@@ -1,51 +1,40 @@
-# Project Brief: Attendandt
+# Project Brief: Smart Hospitality Operations Platform
 
-## Project Overview
-Attendandt is a comprehensive guest management and concierge service platform designed for hospitality businesses. The platform combines guest profile management, vendor directory services, and concierge request handling with advanced data ingestion and discrepancy detection capabilities.
+## 1. Project Summary
 
-## Core Requirements
+This project aims to develop a "Smart Hospitality Operations Platform" that integrates deeply with the Mews Property Management System (PMS). The platform will serve as a central hub for hotel staff to manage guest experiences, streamline operations, and drive ancillary revenue. It will provide real-time data synchronization with Mews, intelligent guest profile management, a sophisticated service orchestration system, and a powerful analytics dashboard.
 
-### Primary Features
-1. **Guest Profile Management** - Complete CRUD operations for guest information
-2. **Vendor Directory** - Searchable directory of service providers
-3. **Concierge Services** - Request management system linking guests to vendors
-4. **Data Ingestion** - Automated data import from multiple sources
-5. **Discrepancy Detection** - Automated detection and resolution of data inconsistencies
+The primary goal is to move beyond basic property management and create a proactive, data-driven operational tool. By enriching guest data, automating workflows, and providing actionable insights, the platform will empower staff to deliver personalized, high-quality service efficiently.
 
-### Technical Requirements
-- **Architecture**: Monorepo with pnpm workspaces
-- **Frontend**: Vite + React + TypeScript + Tailwind CSS
-- **Backend**: Node.js + Express + TypeScript + Prisma
-- **Database**: Supabase PostgreSQL with Row Level Security
-- **Authentication**: Supabase Auth with JWT tokens
-- **State Management**: Zustand + React Query
-- **Deployment**: Railway with CI/CD pipeline
-- **Development**: Docker containerization
+## 2. Key Objectives
 
-### Quality Requirements
-- **Security**: Role-Based Access Control (RBAC) with comprehensive RLS policies
-- **Performance**: Redis caching for frequently accessed data
-- **Reliability**: Comprehensive error handling and validation
-- **Maintainability**: Type-safe operations throughout the stack
-- **Scalability**: Asynchronous processing for data ingestion
+*   **Deep Mews Integration**: Achieve seamless, bidirectional data synchronization with the Mews PMS for reservations, guest profiles, and billing.
+*   **Intelligent Guest Profiles**: Create comprehensive, auto-enriched guest profiles with a "completeness score" to ensure staff have all necessary information before arrival.
+*   **Streamlined Operations**: Build a real-time operations dashboard that provides at-a-glance views of arrivals, service requests, and operational health.
+*   **Service Orchestration**: Develop a robust system for managing concierge services and vendor relationships, from request to fulfillment and billing.
+*   **Data-Driven Insights**: Implement an analytics engine to track key performance indicators (KPIs), predict guest needs, and identify revenue opportunities.
+*   **Mobile-First Design**: Ensure the platform is fully accessible and functional on mobile devices for on-the-go staff.
 
-## Project Goals
-1. **User Experience**: Seamless, intuitive interface with clear feedback
-2. **Data Integrity**: Robust validation and error handling at all levels
-3. **Security**: Multi-layered security with authentication, authorization, and data protection
-4. **Performance**: Fast, responsive application with optimized database queries
-5. **Reliability**: Stable platform with automated testing and deployment
+## 3. Scope of Work
 
-## Success Criteria
-- All 20 implementation steps completed successfully
-- Comprehensive test coverage with automated CI/CD
-- Production deployment on Railway
-- Security audit passed with all RLS policies implemented
-- Performance benchmarks met with Redis caching active
+The project is divided into seven phases:
 
-## Constraints
-- Must use specified technology stack
-- Must follow monorepo architecture
-- Must implement comprehensive security measures
-- Must support Railway deployment
-- Must maintain consistent UX/UI patterns throughout 
+1.  **Foundation & Core Integration**: Set up the monorepo, establish a connection with the Mews API, and build the core framework for real-time data exchange.
+2.  **Smart Data Management**: Enhance the database schema for Mews integration and develop algorithms for guest profile scoring and data enrichment.
+3.  **Real-time Operations Dashboard**: Design and build the primary user interface for staff, including dashboards for arrivals, service requests, and operational metrics.
+4.  **Service Orchestration & Vendor Management**: Implement features for managing vendors, tracking service requests, and automating service-related workflows.
+5.  **Advanced Analytics & AI Features**: Develop predictive analytics for guest satisfaction, revenue optimization, and demand forecasting. Build a custom reporting tool.
+6.  **Integration Ecosystem & Mobile**: Extend the platform's capabilities with third-party integrations (e.g., WhatsApp, SMS) and develop a Progressive Web App (PWA).
+7.  **Performance & Production Readiness**: Optimize the platform for performance, conduct thorough testing, and prepare for production deployment.
+
+## 4. Target Audience
+
+*   **Concierge Staff**: Primary users for managing guest requests and services.
+*   **Front Desk Staff**: Users for managing guest check-ins and accessing guest profiles.
+*   **Hotel Management**: Users for monitoring operational performance and accessing analytics.
+*   **Vendors**: External users for receiving and updating service requests.
+
+## 5. Success Metrics
+
+*   **Technical**: >95% guest profile data completeness, <2s dashboard response time, 100% sync accuracy with Mews, >99.9% uptime.
+*   **Business**: 50% reduction in manual data entry, 15% increase in ancillary revenue, improved guest satisfaction scores.

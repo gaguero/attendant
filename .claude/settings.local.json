@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(touch:*)",
+      "Bash(pnpm install:*)",
+      "Bash(powershell:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx:*)",
+      "Bash(ping:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout 30 npx prisma db push --force-reset)",
+      "Bash(dir)",
+      "Bash(where pnpm)",
+      "Bash(cmd /c:*)"
+    ],
+    "deny": []
+  }
+}

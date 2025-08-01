@@ -14,6 +14,10 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
   SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required').optional(),
+
+  // Mews
+  MEWS_CLIENT_TOKEN: z.string().min(1, 'MEWS_CLIENT_TOKEN is required'),
+  MEWS_ACCESS_TOKEN: z.string().min(1, 'MEWS_ACCESS_TOKEN is required'),
   
   // JWT
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
@@ -81,6 +85,11 @@ export const serverConfig = {
 export const redisConfig = {
   url: config.REDIS_URL,
 } as const;
+
+export const mewsConfig = {
+  clientToken: config.MEWS_CLIENT_TOKEN,
+  accessToken: config.MEWS_ACCESS_TOKEN,
+}
 
 // Type exports for better TypeScript support
 export type Config = typeof config;

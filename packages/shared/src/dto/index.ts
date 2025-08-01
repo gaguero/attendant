@@ -12,6 +12,9 @@ export * from './guest.dto.js';
 // Vendor DTOs (Step 11)
 export * from './vendor.dto.js';
 
+// Mews DTOs
+export * from './mews.dto.js';
+
 // Concierge DTOs (Step 13)
 // export * from './concierge.dto.js';
 

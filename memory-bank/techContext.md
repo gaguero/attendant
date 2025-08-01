@@ -1,206 +1,64 @@
-# Technical Context: Attendandt
+# Technical Context
 
-## Technology Stack
+This document outlines the technologies, tools, and environment setup for the Smart Hospitality Operations Platform.
 
-### Frontend Technologies
-- **Framework**: React 18+ with TypeScript
-- **Build Tool**: Vite for fast development and optimized builds
-- **Styling**: Tailwind CSS for utility-first styling
-- **Routing**: React Router v6 for client-side navigation
-- **State Management**: Zustand for global state
-- **Data Fetching**: React Query (TanStack Query) for server state
-- **Forms**: Formik with Yup validation
-- **UI Components**: Custom components built with Tailwind
+## 1. Core Technologies
 
-### Backend Technologies
-- **Runtime**: Node.js 18+ with TypeScript
-- **Framework**: Express.js for REST API
-- **Database ORM**: Prisma for type-safe database operations
-- **Authentication**: Supabase Auth for JWT-based authentication
-- **Validation**: Zod for runtime type checking
-- **Logging**: Winston or Pino for structured logging
-- **Caching**: Redis for performance optimization
+*   **Frontend**:
+    *   **Framework**: React 18
+    *   **Language**: TypeScript
+    *   **Build Tool**: Vite
+    *   **Styling**: Tailwind CSS
+    *   **State Management**: Zustand (client-side), React Query (server-side)
+    *   **Routing**: React Router v6
+    *   **Form Handling**: Formik + Yup (to be evaluated against React Hook Form)
 
-### Database & Infrastructure
-- **Database**: PostgreSQL via Supabase
-- **Security**: Row Level Security (RLS) policies
-- **Migrations**: Prisma migrations for schema management
-- **Deployment**: Railway for production hosting
-- **Containerization**: Docker for development environment
-- **CI/CD**: GitHub Actions for automated testing and deployment
+*   **Backend**:
+    *   **Framework**: Node.js with Express.js
+    *   **Language**: TypeScript
+    *   **ORM**: Prisma
+    *   **Database**: PostgreSQL (via Supabase)
+    *   **Real-time**: WebSocket client for Mews integration (`ws` library)
+    *   **HTTP Client**: Axios for Mews API integration
+    *   **Retry Logic**: axios-retry for exponential backoff
 
-### Package Management
-- **Tool**: pnpm for efficient package management
-- **Structure**: Workspace configuration for monorepo
-- **Dependency Sharing**: Shared packages between frontend/backend
+*   **Shared**:
+    *   **Package Manager**: pnpm with workspaces
+    *   **Validation**: Zod for type-safe validation schemas
 
-## Development Setup
+## 2. Development Environment
 
-### Prerequisites
-- Node.js 18+
-- pnpm 8+
-- Docker and Docker Compose
-- Git
-- Supabase account
-- Railway account (for deployment)
+*   **Monorepo Management**: The project is set up as a pnpm workspace, which simplifies dependency management and enables code sharing across packages.
+*   **API Proxy**: The Vite development server is configured to proxy all requests from `/api` to the backend server running on `localhost:3003`. This allows the frontend to communicate with the backend seamlessly during development.
+*   **Hot Module Replacement (HMR)**: Both the frontend (via Vite) and the backend (via `tsx`) support hot reloading, which provides a fast and efficient development experience.
+*   **Environment Variables**:
+    *   The frontend and backend packages each have their own `.env` files for managing environment-specific configurations.
+    *   It is crucial to set up the necessary variables, especially those for the database connection and Mews API, before running the application.
 
-### Environment Configuration
-```bash
-# Backend Environment Variables
-DATABASE_URL="postgresql://..."
-SUPABASE_URL="https://..."
-SUPABASE_ANON_KEY="..."
-SUPABASE_SERVICE_ROLE_KEY="..."
-JWT_SECRET="..."
-REDIS_URL="redis://localhost:6379"
-PORT=3000
+## 3. Mews Integration Details
 
-# Frontend Environment Variables
-VITE_SUPABASE_URL="https://..."
-VITE_SUPABASE_ANON_KEY="..."
-VITE_API_URL="http://localhost:3000"
-```
+*   **API Endpoint**: `https://api.mews-demo.com` (for the demo environment)
+*   **WebSocket URL**: `wss://ws.mews-demo.com`
+*   **Authentication**: The backend uses a Client Token and an Access Token to authenticate with the Mews API. These tokens are stored securely as environment variables.
+*   **Rate Limiting**: The Mews demo environment has a rate limit of 500 requests per 15 minutes. The Mews API client on the backend respects this limit and includes appropriate handling with in-memory request tracking.
+*   **Data Format**: All `datetime` values exchanged with the Mews API must be in UTC ISO 8601 format.
+*   **Error Handling**: The Mews API client implements retry logic with exponential backoff for transient errors using the `axios-retry` library.
 
-### Local Development Workflow
-1. **Initial Setup**:
-   ```bash
-   pnpm install
-   docker-compose up -d
-   cd packages/backend && pnpm prisma migrate dev
-   ```
+## 4. Database Schema
 
-2. **Development Mode**:
-   ```bash
-   pnpm dev  # Starts both frontend and backend
-   ```
+*   **Sync Tracking**: All models (User, Guest, Vendor) include `mewsId` (TEXT UNIQUE) and `syncedAt` (TIMESTAMP) fields for tracking synchronization status.
+*   **Migration Management**: Database migrations are applied via Supabase SQL execution due to Prisma CLI connection issues with the current environment.
+*   **Prisma Client**: Generated with sync tracking fields and ready for bidirectional synchronization.
 
-3. **Database Management**:
-   ```bash
-   pnpm db:studio  # Prisma Studio
-   pnpm db:migrate  # Run migrations
-   pnpm db:reset   # Reset database
-   ```
+## 5. Testing
 
-## Technical Constraints
+*   **Backend**: Vitest will be used for unit and integration testing of the backend services and API endpoints. A separate test database will be used to ensure test isolation.
+*   **Frontend**: React Testing Library with Vitest will be used for testing React components.
+*   **End-to-End (E2E)**: Cypress is planned for E2E testing to simulate user workflows across the entire application.
+*   **Mews Integration Testing**: Manual testing of API connectivity, WebSocket connections, and rate limiting is currently available.
 
-### Performance Requirements
-- **API Response Time**: < 200ms for CRUD operations
-- **Page Load Time**: < 2 seconds for initial load
-- **Database Queries**: Optimized with proper indexing
-- **Caching**: Redis for frequently accessed data
+## 6. Deployment
 
-### Security Requirements
-- **Authentication**: JWT tokens with refresh mechanism
-- **Authorization**: Role-based access control (RBAC)
-- **Data Protection**: Row Level Security on all tables
-- **Input Validation**: Client and server-side validation
-- **Security Headers**: Helmet.js for security headers
-
-### Scalability Constraints
-- **Database**: PostgreSQL with connection pooling
-- **Caching**: Redis for session and data caching
-- **File Storage**: Supabase Storage for file uploads
-- **API Rate Limiting**: Implemented for production
-
-### Browser Support
-- **Modern Browsers**: Chrome 90+, Firefox 88+, Safari 14+
-- **Mobile**: Responsive design for tablet usage
-- **JavaScript**: ES2020+ features supported
-
-## Dependencies
-
-### Core Frontend Dependencies
-```json
-{
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "typescript": "^5.0.0",
-  "vite": "^4.4.0",
-  "tailwindcss": "^3.3.0",
-  "react-router-dom": "^6.15.0",
-  "zustand": "^4.4.0",
-  "@tanstack/react-query": "^4.32.0",
-  "formik": "^2.4.0",
-  "yup": "^1.2.0",
-  "@supabase/supabase-js": "^2.33.0"
-}
-```
-
-### Core Backend Dependencies
-```json
-{
-  "express": "^4.18.0",
-  "typescript": "^5.0.0",
-  "prisma": "^5.2.0",
-  "@prisma/client": "^5.2.0",
-  "zod": "^3.22.0",
-  "winston": "^3.10.0",
-  "helmet": "^7.0.0",
-  "cors": "^2.8.0",
-  "redis": "^4.6.0",
-  "@supabase/supabase-js": "^2.33.0"
-}
-```
-
-### Development Dependencies
-```json
-{
-  "@types/node": "^20.5.0",
-  "@types/express": "^4.17.0",
-  "eslint": "^8.47.0",
-  "prettier": "^3.0.0",
-  "husky": "^8.0.0",
-  "lint-staged": "^13.2.0",
-  "vitest": "^0.34.0"
-}
-```
-
-## Build and Deployment
-
-### Build Process
-- **Frontend**: Vite build with TypeScript compilation
-- **Backend**: TypeScript compilation with Prisma generation
-- **Shared**: TypeScript compilation for shared packages
-
-### Deployment Strategy
-- **Platform**: Railway for production deployment
-- **Environment**: Containerized deployment with Docker
-- **Database**: Supabase PostgreSQL in production
-- **CDN**: Railway's built-in CDN for static assets
-
-### CI/CD Pipeline
-```yaml
-# .github/workflows/ci.yml
-- Lint and type checking
-- Unit tests
-- Integration tests
-- Build verification
-- Deployment to Railway
-```
-
-## Monitoring and Logging
-
-### Application Monitoring
-- **Logging**: Structured logging with Winston/Pino
-- **Error Tracking**: Comprehensive error handling
-- **Performance**: Database query monitoring
-- **Uptime**: Railway's built-in monitoring
-
-### Development Tools
-- **Database**: Prisma Studio for database management
-- **API Testing**: Thunder Client or Postman
-- **Code Quality**: ESLint and Prettier
-- **Git Hooks**: Husky for pre-commit validation
-
-## Migration Strategy
-
-### Database Migrations
-- **Tool**: Prisma migrations
-- **Process**: Version-controlled schema changes
-- **Rollback**: Migration rollback capabilities
-- **Seeding**: Database seeding for development
-
-### Deployment Migrations
-- **Zero-downtime**: Migrations run before deployment
-- **Validation**: Schema validation in CI/CD
-- **Backup**: Automatic backups before major changes 
+*   **Staging & Production**: Railway is the target platform for both staging and production environments.
+*   **Containerization**: Docker will be used to containerize the backend application for consistent and reproducible deployments.
+*   **CI/CD**: A continuous integration and deployment pipeline will be set up (e.g., using GitHub Actions) to automate testing and deployments.

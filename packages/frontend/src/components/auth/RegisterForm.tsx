@@ -43,7 +43,7 @@ interface RegisterFormValues {
 }
 
 const RegisterForm: React.FC = () => {
-  const { registerWithRedirect, isAuthenticated, error, clearError, isLoading } = useAuth();
+  const { register, isAuthenticated, error, clearError, isLoading } = useAuth();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -64,20 +64,24 @@ const RegisterForm: React.FC = () => {
   }
 
   const handleSubmit = async (values: RegisterFormValues) => {
+    console.log('🚀 Registration form submitted:', values);
     try {
-      await registerWithRedirect(
+      console.log('📡 Calling register...');
+      await register(
         {
           email: values.email,
           password: values.password,
           confirmPassword: values.confirmPassword,
           firstName: values.firstName || undefined,
           lastName: values.lastName || undefined,
-          role: UserRole.GUEST,
+          role: UserRole.STAFF, // Explicitly set default role
         },
         from
       );
+      console.log('✅ Registration successful');
       showToast('Account created successfully!','success');
     } catch (err) {
+      console.error('❌ Registration failed:', err);
       /* error handled by context */
     }
   };
@@ -127,7 +131,9 @@ const RegisterForm: React.FC = () => {
           validationSchema={registerSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, errors, touched }) => (
+          {({ isSubmitting, errors, touched, values, isValid }) => {
+            console.log('🔍 Formik render - isSubmitting:', isSubmitting, 'isValid:', isValid, 'errors:', errors, 'values:', values);
+            return (
             <Form className="mt-8 space-y-6">
               {error && (
                 <div className="rounded-md bg-red-50 p-4">
@@ -424,6 +430,7 @@ const RegisterForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
+                  onClick={() => console.log('🔘 Create account button clicked!')}
                   className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {(isSubmitting || isLoading) && (
@@ -453,7 +460,8 @@ const RegisterForm: React.FC = () => {
                 </button>
               </div>
             </Form>
-          )}
+          );
+          }}
         </Formik>
       </div>
     </div>

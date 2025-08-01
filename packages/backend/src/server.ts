@@ -2,8 +2,12 @@ import app from './app.js';
 import { logger } from './lib/logger.js';
 import { serverConfig } from './config/index.js';
 import { prisma } from './lib/prisma.js';
+import { mewsWebSocketClient } from './lib/mews.ws.js';
 
 const PORT = serverConfig.port;
+
+// Initialize Mews WebSocket client
+mewsWebSocketClient.connect();
 
 // Start the HTTP server
 const server = app.listen(PORT, () => {

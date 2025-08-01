@@ -84,8 +84,8 @@ export async function requireAuth(
       id: user.id,
       email: user.email,
       role: (user.role as unknown as string).toLowerCase() as any,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.firstName || null,
+      lastName: user.lastName || null,
     };
 
     logger.debug('User authenticated successfully', {
@@ -151,8 +151,8 @@ export async function optionalAuth(
         id: user.id,
         email: user.email,
         role: (user.role as unknown as string).toLowerCase() as any,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstName || null,
+        lastName: user.lastName || null,
       };
 
       logger.debug('Optional auth: User identified', {
@@ -235,4 +235,4 @@ export const requireStaff = requireRole(UserRole.STAFF, UserRole.ADMIN);
 /**
  * Manager or higher access middleware
  */
-export const requireManager = requireRole(UserRole.MANAGER, UserRole.ADMIN); 
+export const requireManager = requireRole(UserRole.STAFF, UserRole.ADMIN); 

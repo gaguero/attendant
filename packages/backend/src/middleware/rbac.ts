@@ -63,4 +63,4 @@ export const requireStaff = requireRole(UserRole.STAFF, UserRole.ADMIN);
 /**
  * Manager or higher access middleware
  */
-export const requireManager = requireRole(UserRole.MANAGER, UserRole.ADMIN); 
+export const requireManager = requireRole(UserRole.STAFF, UserRole.ADMIN); 

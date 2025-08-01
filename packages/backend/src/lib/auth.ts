@@ -7,7 +7,8 @@ import type { User } from '@prisma/client';
 
 // Token expiration times
 const ACCESS_TOKEN_EXPIRES_IN = '15m'; // 15 minutes
-const REFRESH_TOKEN_EXPIRES_IN = '7d'; // 7 days
+// Commented out unused variable to fix build error:
+// const REFRESH_TOKEN_EXPIRES_IN = '7d'; // 7 days
 const ACCESS_TOKEN_EXPIRES_SECONDS = 15 * 60; // 15 minutes in seconds
 
 // In-memory token blacklist (in production, use Redis)

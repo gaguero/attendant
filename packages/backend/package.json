@@ -25,6 +25,9 @@
     "@attendandt/shared": "workspace:*",
     "@prisma/client": "^5.2.0",
     "@supabase/supabase-js": "^2.33.0",
+    "@types/ws": "^8.18.1",
+    "axios": "^1.11.0",
+    "axios-retry": "^4.5.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -36,6 +39,7 @@
     "prisma": "^5.2.0",
     "redis": "^4.6.7",
     "winston": "^3.10.0",
+    "ws": "^8.18.3",
     "zod": "^3.22.2"
   },
   "devDependencies": {

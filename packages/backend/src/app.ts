@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { logger } from './lib/logger.js';
 import { serverConfig } from './config/index.js';
 import authRoutes from './routes/auth.js';
+import supabaseAuthRoutes from './routes/supabaseAuth.js';
 import userRoutes from './routes/users.js';
 import profileRoutes from './routes/profile.js';
 import guestRoutes from './routes/guests.js';
@@ -100,8 +101,11 @@ app.get('/api/v1', (_req, res) => {
   });
 });
 
-// Authentication routes
-app.use('/api/v1/auth', authRoutes);
+// Authentication routes (Supabase Auth)
+app.use('/api/v1/auth', supabaseAuthRoutes);
+
+// Legacy authentication routes (custom auth - for migration)
+app.use('/api/v1/auth-legacy', authRoutes);
 
 // User management routes
 app.use('/api/v1/users', userRoutes);
