@@ -42,6 +42,11 @@ model User {
   // Mews Sync
   mewsId    String?  @unique @map("mews_id")
   syncedAt  DateTime? @map("synced_at")
+  syncStatus SyncStatus @default(PENDING) @map("sync_status")
+  
+  // Data Completeness Tracking
+  profileCompleteness Int @default(0) @map("profile_completeness") // 0-100%
+  lastCompletenessCheck DateTime? @map("last_completeness_check")
   
   // Future relationships (will be added in later steps)
   // guests     Guest[]     // Step 9: Guest management
@@ -56,6 +61,7 @@ model User {
   vendorsCreated Vendor[] @relation("VendorCreatedBy")
   passwordResetTokens PasswordResetToken[]
   auditLogs          AuditLog[]
+  mewsSyncLogs       MewsSyncLog[]
   
   @@map("users")
 }
@@ -81,6 +87,22 @@ model Guest {
   
   status          GuestStatus @default(ACTIVE)
   
+  // Mews Integration Fields
+  mewsId    String?  @unique @map("mews_id")
+  syncedAt  DateTime? @map("synced_at")
+  syncStatus SyncStatus @default(PENDING) @map("sync_status")
+  
+  // Data Completeness Tracking
+  profileCompleteness Int @default(0) @map("profile_completeness") // 0-100%
+  lastCompletenessCheck DateTime? @map("last_completeness_check")
+  dataGaps Json? @map("data_gaps") // Array of missing required fields
+  
+  // Guest Intelligence
+  vipScore Float @default(0) @map("vip_score") // 0-100 based on spending, frequency, etc.
+  lastStay DateTime? @map("last_stay")
+  totalStays Int @default(0) @map("total_stays")
+  averageSpending Float? @map("average_spending")
+  
   // Relationships
   createdById     String      @db.Uuid @map("created_by_id")
   createdBy       User        @relation("CreatedBy", fields: [createdById], references: [id])
@@ -88,10 +110,9 @@ model Guest {
   // Metadata
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
-
-  // Mews Sync
-  mewsId    String?  @unique @map("mews_id")
-  syncedAt  DateTime? @map("synced_at")
+  
+  // Audit relationships
+  mewsSyncLogs    MewsSyncLog[]
   
   @@map("guests")
 }
@@ -103,6 +124,15 @@ enum GuestStatus {
   BLACKLISTED
   
   @@map("guest_status")
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCED
+  FAILED
+  CONFLICT
+  
+  @@map("sync_status")
 }
 
 // User role enumeration for RBAC
@@ -137,15 +167,19 @@ model Vendor {
   website       String?
   notes         String?        @db.Text
 
+  // Mews Integration Fields
+  mewsId    String?  @unique @map("mews_id")
+  syncedAt  DateTime? @map("synced_at")
+  syncStatus SyncStatus @default(PENDING) @map("sync_status")
+
   createdById   String         @db.Uuid @map("created_by_id")
   createdBy     User           @relation("VendorCreatedBy", fields: [createdById], references: [id])
 
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
-  // Mews Sync
-  mewsId    String?  @unique @map("mews_id")
-  syncedAt  DateTime? @map("synced_at")
+  // Audit relationships
+  mewsSyncLogs    MewsSyncLog[]
 
   @@map("vendors")
 }
@@ -174,4 +208,86 @@ model AuditLog {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("audit_logs")
+}
+
+// Mews Sync Log model to track sync operations
+model MewsSyncLog {
+  id          String   @id @default(uuid())
+  entityType  String   @map("entity_type") // "User", "Guest", "Vendor"
+  entityId    String   @map("entity_id")
+  operation   String   // "CREATE", "UPDATE", "DELETE", "SYNC"
+  direction   SyncDirection @default(INBOUND) // "INBOUND", "OUTBOUND"
+  status      SyncStatus @default(PENDING)
+  
+  // Mews specific data
+  mewsEventId String?  @map("mews_event_id")
+  mewsData    Json?    @map("mews_data")
+  platformData Json?   @map("platform_data")
+  
+  // Error tracking
+  errorMessage String? @map("error_message")
+  retryCount   Int     @default(0) @map("retry_count")
+  
+  // Relationships
+  userId    String?   @db.Uuid @map("user_id")
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  guestId   String?   @db.Uuid @map("guest_id")
+  guest     Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  
+  vendorId  String?   @db.Uuid @map("vendor_id")
+  vendor    Vendor?   @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("mews_sync_logs")
+}
+
+enum SyncDirection {
+  INBOUND
+  OUTBOUND
+  
+  @@map("sync_direction")
+}
+
+// Business Rules Engine - Configurable validation rules
+model BusinessRule {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  entityType  String   @map("entity_type") // "User", "Guest", "Vendor"
+  field       String   // Field to validate
+  ruleType    RuleType @map("rule_type")
+  ruleConfig  Json     @map("rule_config") // Rule-specific configuration
+  isActive    Boolean  @default(true) @map("is_active")
+  priority    Int      @default(0) // Higher number = higher priority
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  @@map("business_rules")
+}
+
+enum RuleType {
+  REQUIRED
+  FORMAT
+  RANGE
+  CUSTOM
+  
+  @@map("rule_type")
+}
+
+// Data Completeness Configuration
+model CompletenessConfig {
+  id          String   @id @default(uuid())
+  entityType  String   @unique @map("entity_type") // "User", "Guest", "Vendor"
+  fieldWeights Json    @map("field_weights") // Field name -> weight (0-100)
+  requiredFields String[] @default([]) @map("required_fields")
+  optionalFields String[] @default([]) @map("optional_fields")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  @@map("completeness_configs")
 } 

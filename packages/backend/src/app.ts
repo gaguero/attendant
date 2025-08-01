@@ -9,6 +9,8 @@ import userRoutes from './routes/users.js';
 import profileRoutes from './routes/profile.js';
 import guestRoutes from './routes/guests.js';
 import vendorRoutes from './routes/vendors.js';
+import completenessRoutes from './routes/completeness.js';
+import businessRulesRoutes from './routes/businessRules.js';
 
 // Create Express application
 const app: Express = express();
@@ -112,6 +114,10 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/guests', guestRoutes);
 app.use('/api/v1/vendors', vendorRoutes);
+
+// Data intelligence routes
+app.use('/api/v1/completeness', completenessRoutes);
+app.use('/api/v1/business-rules', businessRulesRoutes);
 
 // 404 handler for undefined routes
 app.use('*', (req, res) => {
