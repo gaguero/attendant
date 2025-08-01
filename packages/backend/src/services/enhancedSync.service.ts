@@ -1,4 +1,5 @@
-import { PrismaClient, MewsSyncLog, SyncDirection, SyncStatus } from '@prisma/client';
+import { PrismaClient, SyncDirection, SyncStatus } from '@prisma/client';
+import type { MewsSyncLog } from '@prisma/client';
 import { CompletenessService } from './completeness.service';
 import { BusinessRulesService } from './businessRules.service';
 

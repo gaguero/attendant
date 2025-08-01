@@ -104,11 +104,11 @@ app.get('/api/v1', (_req, res) => {
   });
 });
 
-// Authentication routes (Supabase Auth)
-app.use('/api/v1/auth', supabaseAuthRoutes);
+// Authentication routes (custom auth - primary)
+app.use('/api/v1/auth', authRoutes);
 
-// Legacy authentication routes (custom auth - for migration)
-app.use('/api/v1/auth-legacy', authRoutes);
+// Supabase authentication routes (alternative auth)
+app.use('/api/v1/auth-supabase', supabaseAuthRoutes);
 
 // User management routes
 app.use('/api/v1/users', userRoutes);

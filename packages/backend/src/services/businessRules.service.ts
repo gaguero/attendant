@@ -1,4 +1,5 @@
-import { PrismaClient, BusinessRule, RuleType } from '@prisma/client';
+import { PrismaClient, RuleType } from '@prisma/client';
+import type { BusinessRule } from '@prisma/client';
 
 export interface ValidationResult {
   isValid: boolean;

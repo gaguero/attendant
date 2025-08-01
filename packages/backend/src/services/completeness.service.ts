@@ -1,4 +1,5 @@
-import { PrismaClient, User, Guest, Vendor, CompletenessConfig } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import type { User, Guest, Vendor } from '@prisma/client';
 
 export interface CompletenessResult {
   score: number; // 0-100
@@ -187,7 +188,7 @@ export class CompletenessService {
   /**
    * Get or create completeness configuration for an entity type
    */
-  private async getCompletenessConfig(entityType: string): Promise<CompletenessConfig> {
+  private async getCompletenessConfig(entityType: string): Promise<any> { // Changed return type to any as CompletenessConfig is removed
     let config = await this.prisma.completenessConfig.findUnique({
       where: { entityType }
     });
@@ -202,7 +203,7 @@ export class CompletenessService {
   /**
    * Create default completeness configuration
    */
-  private async createDefaultConfig(entityType: string): Promise<CompletenessConfig> {
+  private async createDefaultConfig(entityType: string): Promise<any> { // Changed return type to any
     const defaultConfigs = {
       User: {
         fieldWeights: {
@@ -281,4 +282,49 @@ export class CompletenessService {
     
     return true;
   }
-} 
+
+  /**
+   * Get completeness statistics for dashboard
+   */
+  async getCompletenessStatistics() {
+    const [users, guests] = await Promise.all([
+      this.prisma.user.aggregate({
+        _count: { id: true },
+        _avg: { profileCompleteness: true }
+      }),
+      this.prisma.guest.aggregate({
+        _count: { id: true },
+        _avg: { profileCompleteness: true }
+      })
+    ]);
+
+    // Get vendor count (vendors don't have profileCompleteness field yet)
+    const vendorCount = await this.prisma.vendor.count();
+
+    const totalEntities = users._count.id + guests._count.id + vendorCount;
+    const totalScore = 
+      (users._avg.profileCompleteness || 0) * users._count.id +
+      (guests._avg.profileCompleteness || 0) * guests._count.id;
+
+    const averageScore = totalEntities > 0 ? Math.round(totalScore / totalEntities) : 0;
+
+    return {
+      users: {
+        total: users._count.id,
+        averageScore: Math.round(users._avg.profileCompleteness || 0)
+      },
+      guests: {
+        total: guests._count.id,
+        averageScore: Math.round(guests._avg.profileCompleteness || 0)
+      },
+      vendors: {
+        total: vendorCount,
+        averageScore: 0 // Vendors don't have profileCompleteness field yet
+      },
+      overall: {
+        totalEntities,
+        averageScore
+      }
+    };
+  }
+}

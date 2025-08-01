@@ -1,12 +1,11 @@
-import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { CompletenessService } from '../services/completeness.service';
-import { BusinessRulesService } from '../services/businessRules.service';
-import { authMiddleware } from '../middleware/auth';
-import { rbacMiddleware } from '../middleware/rbac';
+import { Router, type Request, type Response } from 'express';
+import { prisma } from '../lib/prisma.js';
+import { logger } from '../lib/logger.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { CompletenessService } from '../services/completeness.service.js';
+import { BusinessRulesService } from '../services/businessRules.service.js';
 
-const router = Router();
-const prisma = new PrismaClient();
+const router: Router = Router();
 const completenessService = new CompletenessService(prisma);
 const businessRulesService = new BusinessRulesService(prisma);
 
@@ -14,7 +13,7 @@ const businessRulesService = new BusinessRulesService(prisma);
  * GET /api/completeness/config/:entityType
  * Get completeness configuration for an entity type
  */
-router.get('/config/:entityType', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.get('/config/:entityType', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const { entityType } = req.params;
     
@@ -37,7 +36,7 @@ router.get('/config/:entityType', authMiddleware, rbacMiddleware(['ADMIN', 'STAF
  * PUT /api/completeness/config/:entityType
  * Update completeness configuration for an entity type
  */
-router.put('/config/:entityType', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.put('/config/:entityType', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { entityType } = req.params;
     const { fieldWeights, requiredFields, optionalFields } = req.body;
@@ -68,7 +67,7 @@ router.put('/config/:entityType', authMiddleware, rbacMiddleware(['ADMIN']), asy
  * GET /api/completeness/guests
  * Get all guests with their completeness scores
  */
-router.get('/guests', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF', 'CONCIERGE']), async (req, res) => {
+router.get('/guests', requireAuth, requireRole(['ADMIN', 'STAFF', 'CONCIERGE']), async (req, res) => {
   try {
     const { page = 1, limit = 20, minScore, maxScore } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
@@ -123,7 +122,7 @@ router.get('/guests', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF', 'CONCIER
  * GET /api/completeness/guests/:id
  * Get completeness details for a specific guest
  */
-router.get('/guests/:id', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF', 'CONCIERGE']), async (req, res) => {
+router.get('/guests/:id', requireAuth, requireRole(['ADMIN', 'STAFF', 'CONCIERGE']), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -173,7 +172,7 @@ router.get('/guests/:id', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF', 'CON
  * GET /api/completeness/users
  * Get all users with their completeness scores
  */
-router.get('/users', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.get('/users', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { page = 1, limit = 20, minScore, maxScore } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
@@ -226,7 +225,7 @@ router.get('/users', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res)
  * POST /api/completeness/recalculate
  * Recalculate completeness scores for all entities
  */
-router.post('/recalculate', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.post('/recalculate', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     await completenessService.updateAllCompletenessScores();
     
@@ -244,7 +243,7 @@ router.post('/recalculate', authMiddleware, rbacMiddleware(['ADMIN']), async (re
  * GET /api/completeness/statistics
  * Get completeness statistics
  */
-router.get('/statistics', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.get('/statistics', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const [
       guestStats,

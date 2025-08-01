@@ -1,25 +1,21 @@
 import { Router, type Request, type Response } from 'express';
-import bcrypt from 'bcrypt';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
-import {
-  generateAuthResponse,
-  blacklistToken,
-  extractTokenFromHeader,
-} from '../lib/auth.js';
-import {
-  LoginDto,
-  RegisterDto,
-  RefreshTokenDto,
-  ChangePasswordDto,
-  ForgotPasswordDto,
-  ResetPasswordDto,
+import { hashPassword, comparePassword, generateToken, verifyToken } from '../lib/auth.js';
+import { 
+  RegisterDto, 
+  LoginDto, 
+  RefreshTokenDto, 
+  ChangePasswordDto, 
+  ForgotPasswordDto, 
+  ResetPasswordDto 
 } from '@attendandt/shared';
 import { requireAuth } from '../middleware/auth.js';
 import crypto from 'crypto';
 import { sendPasswordResetEmail } from '../lib/mailer.js';
+import bcrypt from 'bcrypt';
 
-const router = Router();
+const router: Router = Router();
 
 // Password hashing rounds
 const SALT_ROUNDS = 12;
@@ -54,7 +50,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await hashPassword(password, SALT_ROUNDS);
 
     // Create user
     const user = await prisma.user.create({
@@ -75,7 +71,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     });
 
     // Generate auth response
-    const authResponse = generateAuthResponse(user);
+    const authResponse = generateToken(user);
 
     res.status(201).json({
       success: true,
@@ -136,7 +132,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     }
 
     // Verify password (using passwordHash as temporary password storage)
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await comparePassword(password, user.passwordHash);
 
     if (!isPasswordValid) {
       logger.warn('Login failed: Invalid password', {
@@ -161,7 +157,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     });
 
     // Generate auth response
-    const authResponse = generateAuthResponse(user);
+    const authResponse = generateToken(user);
 
     res.status(200).json({
       success: true,

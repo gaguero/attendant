@@ -17,6 +17,10 @@
     "db:reset": "prisma migrate reset",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx src/prisma/seed.ts",
+    "db:init": "tsx scripts/init-database.ts",
+    "db:setup": "tsx scripts/setup-database.ts",
+    "db:test-connection": "tsx scripts/test-db-connection.ts",
+    "db:apply-migrations": "tsx scripts/apply-migrations.ts",
     "db:test:reset": "cross-env NODE_ENV=test prisma migrate reset --force",
     "test": "vitest",
     "test:local": "pnpm run db:test:reset && cross-env NODE_ENV=test vitest"

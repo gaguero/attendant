@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { MainLayout } from '../components/layout/MainLayout';
 import { DashboardMetrics } from '../components/dashboard/DashboardMetrics';
 import { RealTimeStats } from '../components/dashboard/RealTimeStats';
 import { AlertsPanel } from '../components/dashboard/AlertsPanel';
@@ -123,98 +122,90 @@ export const DashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading dashboard...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="text-red-600 text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Dashboard Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={fetchDashboardData}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Retry
-            </button>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Dashboard Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   if (!dashboardData) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <p className="text-gray-600">No dashboard data available</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-gray-600">No dashboard data available</p>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Operations Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Real-time monitoring and analytics for hospitality operations
-            {lastUpdated && (
-              <span className="ml-2 text-sm text-gray-500">
-                Last updated: {lastUpdated.toLocaleTimeString()}
-              </span>
-            )}
-          </p>
-        </div>
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Operations Dashboard</h1>
+        <p className="text-gray-600 mt-2">
+          Real-time monitoring and analytics for hospitality operations
+          {lastUpdated && (
+            <span className="ml-2 text-sm text-gray-500">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+        </p>
+      </div>
 
-        {/* Sync Status */}
-        <div className="mb-6">
-          <SyncStatus 
-            isConnected={dashboardData.syncStatus.isConnected}
-            lastHeartbeat={dashboardData.syncStatus.lastHeartbeat}
-            pendingOperations={dashboardData.syncStatus.pendingOperations}
-            failedOperations={dashboardData.syncStatus.failedOperations}
+      {/* Sync Status */}
+      <div className="mb-6">
+        <SyncStatus 
+          isConnected={dashboardData.syncStatus.isConnected}
+          lastHeartbeat={dashboardData.syncStatus.lastHeartbeat}
+          pendingOperations={dashboardData.syncStatus.pendingOperations}
+          failedOperations={dashboardData.syncStatus.failedOperations}
+        />
+      </div>
+
+      {/* Main Metrics */}
+      <div className="mb-6">
+        <DashboardMetrics metrics={dashboardData.metrics} />
+      </div>
+
+      {/* Real-time Stats and Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+          <RealTimeStats stats={dashboardData.realTimeStats} />
+        </div>
+        <div>
+          <AlertsPanel 
+            alerts={dashboardData.recentAlerts}
+            onAlertRead={handleAlertRead}
           />
         </div>
-
-        {/* Main Metrics */}
-        <div className="mb-6">
-          <DashboardMetrics metrics={dashboardData.metrics} />
-        </div>
-
-        {/* Real-time Stats and Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <RealTimeStats stats={dashboardData.realTimeStats} />
-          </div>
-          <div>
-            <AlertsPanel 
-              alerts={dashboardData.recentAlerts}
-              onAlertRead={handleAlertRead}
-            />
-          </div>
-        </div>
-
-        {/* Data Quality Overview */}
-        <div className="mb-6">
-          <DataQualityOverview dataQuality={dashboardData.realTimeStats.dataQuality} />
-        </div>
       </div>
-    </MainLayout>
+
+      {/* Data Quality Overview */}
+      <div className="mb-6">
+        <DataQualityOverview dataQuality={dashboardData.realTimeStats.dataQuality} />
+      </div>
+    </div>
   );
 }; 

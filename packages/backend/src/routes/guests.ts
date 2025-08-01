@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { requireAuth, requireStaff } from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.js';
+import { requireStaff } from '../middleware/rbac.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
 import { CreateGuestDto, UpdateGuestDto } from '@attendandt/shared';

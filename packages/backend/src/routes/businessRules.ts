@@ -1,18 +1,19 @@
-import { Router } from 'express';
-import { PrismaClient, RuleType } from '@prisma/client';
+import { Router, type Request, type Response } from 'express';
+import { prisma } from '../lib/prisma.js';
+import { logger } from '../lib/logger.js';
+import { requireAuth } from '../middleware/auth.js';
+import { requireRole } from '../middleware/auth.js';
+import { RuleType } from '@prisma/client';
 import { BusinessRulesService } from '../services/businessRules.service';
-import { authMiddleware } from '../middleware/auth';
-import { rbacMiddleware } from '../middleware/rbac';
 
 const router = Router();
-const prisma = new PrismaClient();
 const businessRulesService = new BusinessRulesService(prisma);
 
 /**
  * GET /api/business-rules
  * Get all business rules
  */
-router.get('/', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.get('/', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { entityType, isActive } = req.query;
     
@@ -40,7 +41,7 @@ router.get('/', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
  * GET /api/business-rules/:entityType
  * Get business rules for a specific entity type
  */
-router.get('/:entityType', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.get('/:entityType', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const { entityType } = req.params;
     
@@ -56,7 +57,7 @@ router.get('/:entityType', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), a
  * POST /api/business-rules
  * Create a new business rule
  */
-router.post('/', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.post('/', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const {
       name,
@@ -105,7 +106,7 @@ router.post('/', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => 
  * PUT /api/business-rules/:id
  * Update a business rule
  */
-router.put('/:id', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.put('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -129,7 +130,7 @@ router.put('/:id', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) =
  * DELETE /api/business-rules/:id
  * Delete a business rule
  */
-router.delete('/:id', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.delete('/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -145,7 +146,7 @@ router.delete('/:id', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res
  * POST /api/business-rules/validate
  * Validate an entity against business rules
  */
-router.post('/validate', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.post('/validate', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const { entityType, entityData } = req.body;
 
@@ -167,7 +168,7 @@ router.post('/validate', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), asy
  * POST /api/business-rules/initialize
  * Initialize default business rules
  */
-router.post('/initialize', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.post('/initialize', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     await businessRulesService.createDefaultRules();
     
@@ -185,7 +186,7 @@ router.post('/initialize', authMiddleware, rbacMiddleware(['ADMIN']), async (req
  * GET /api/business-rules/rule-types
  * Get available rule types
  */
-router.get('/rule-types', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.get('/rule-types', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const ruleTypes = Object.values(RuleType).map(type => ({
       value: type,
@@ -204,7 +205,7 @@ router.get('/rule-types', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), as
  * GET /api/business-rules/entity-types
  * Get available entity types
  */
-router.get('/entity-types', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), async (req, res) => {
+router.get('/entity-types', requireAuth, requireRole(['ADMIN', 'STAFF']), async (req, res) => {
   try {
     const entityTypes = [
       { value: 'User', label: 'User', description: 'Staff and admin users' },
@@ -223,7 +224,7 @@ router.get('/entity-types', authMiddleware, rbacMiddleware(['ADMIN', 'STAFF']), 
  * GET /api/business-rules/statistics
  * Get business rules statistics
  */
-router.get('/statistics', authMiddleware, rbacMiddleware(['ADMIN']), async (req, res) => {
+router.get('/statistics', requireAuth, requireRole(['ADMIN']), async (req, res) => {
   try {
     const [
       totalRules,

@@ -23,7 +23,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   
   // Server
-  PORT: z.string().transform(Number).pipe(z.number().int().min(1).max(65535)).default('3000'),
+  PORT: z.string().transform(Number).pipe(z.number().int().min(1).max(65535)).default('3003'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   
   // CORS
