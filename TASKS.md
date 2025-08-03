@@ -124,12 +124,12 @@ This document outlines the development phases and tasks for building a comprehen
 
 **Status**: 🔄 **IN PROGRESS** - Building a comprehensive, flexible granular permission system that can scale with the platform.
 
-### Phase 4.1: Granular Permission System Design
-- [ ] **Permission Architecture**: Design flexible permission system with granular controls
-- [ ] **Role Management**: Implement dynamic role creation and management
-- [ ] **Permission Assignment**: Create system for assigning permissions to roles
-- [ ] **Property-Based Access**: Implement property-specific and chain-wide permissions
-- [ ] **Permission Inheritance**: Design permission inheritance and override mechanisms
+### Phase 4.1: Granular Permission System Design ✅ COMPLETED
+- [x] **Permission Architecture**: Design flexible permission system with granular controls
+- [x] **Role Management**: Implement dynamic role creation and management
+- [x] **Permission Assignment**: Create system for assigning permissions to roles
+- [x] **Property-Based Access**: Implement property-specific and chain-wide permissions
+- [x] **Permission Inheritance**: Design permission inheritance and override mechanisms
 
 ### Phase 4.2: User Management Enhancement
 - [ ] **User CRUD Operations**: Complete user management interface
@@ -144,6 +144,112 @@ This document outlines the development phases and tasks for building a comprehen
 - [ ] **Frontend Interface**: Build permission management UI
 - [ ] **Middleware Integration**: Integrate permission checking throughout the system
 - [ ] **Testing & Validation**: Comprehensive testing of permission system
+
+## 🏗️ **GRANULAR PERMISSION SYSTEM DESIGN - COMPLETED**
+
+### **Architecture Requirements (User Approved):**
+
+1. **Very Granular Permissions for All Resources**
+   - Permission Structure: `resource.action.scope.context`
+   - Examples: `guests.read.own.property`, `users.create.role.chain`
+   - All future features must automatically follow this structure
+
+2. **Mixed Property/Chain Permissions**
+   - Chain-wide: `*.chain` - Access across all properties
+   - Property-specific: `*.property` - Access only to assigned property
+   - Department-specific: `*.department` - Access only to department
+   - User-specific: `*.own` - Access only to own data
+
+3. **Permission Management Hierarchy**
+   - **Super Admin**: Can create/edit/delete roles, assign any permissions, full audit access
+   - **Admin**: Can assign permissions to roles/users under their property
+   - **Manager**: Can assign basic permissions to users in their department
+   - **Full history required** of all permission changes
+
+4. **Automatic Permission Structure for Future Features**
+   - Permission Registry System for automatic permission generation
+   - Permission templates for common patterns
+   - Feature flags for gradual rollout
+
+### **Permission System Architecture:**
+
+**Permission Structure:**
+```
+resource.action.scope.context
+```
+
+**Permission Examples:**
+- `guests.read.own.property` - Read own guests in property
+- `guests.read.all.chain` - Read all guests across chain
+- `users.create.role.property` - Create users with specific role in property
+- `users.edit.permissions.chain` - Edit user permissions across chain
+- `vendors.manage.services.property` - Manage vendor services in property
+- `reports.view.analytics.chain` - View analytics reports across chain
+
+**Permission Types:**
+- **Chain-wide**: `*.chain` - Access across all properties
+- **Property-specific**: `*.property` - Access only to assigned property
+- **Department-specific**: `*.department` - Access only to department
+- **User-specific**: `*.own` - Access only to own data
+
+### **UI Design Specifications:**
+
+**1. Super Admin Dashboard - Role Management:**
+- Main roles page with role cards showing user count and permission count
+- Create/Edit role functionality
+- Role deletion with confirmation
+
+**2. Role Editor Interface:**
+- Role information (name, description, scope, inheritance)
+- Permission matrix organized by resource categories
+- Search and filter permissions
+- Bulk permission assignment
+
+**3. User Permission Assignment:**
+- User list with role and property information
+- Individual user permission editing
+- Custom permission assignment beyond role permissions
+- User activation/deactivation
+
+**4. Permission History & Audit Trail:**
+- Comprehensive audit trail of all permission changes
+- Filtering by change type, date range, user
+- Export functionality for compliance
+
+**5. Permission Matrix View:**
+- Overview table showing all roles vs resources
+- Quick permission comparison
+- Export functionality
+
+### **Database Schema Design:**
+
+```sql
+-- Roles table
+roles (id, name, description, scope, inherits_from, created_by, created_at)
+
+-- Permissions table  
+permissions (id, resource, action, scope, context, description, auto_generated)
+
+-- Role permissions junction
+role_permissions (role_id, permission_id, granted_by, granted_at)
+
+-- User roles junction
+user_roles (user_id, role_id, property_id, assigned_by, assigned_at)
+
+-- User custom permissions
+user_permissions (user_id, permission_id, granted_by, granted_at, expires_at)
+
+-- Audit trail
+permission_audit (id, user_id, action, target_type, target_id, changes, timestamp)
+```
+
+### **Implementation Priority:**
+
+1. **Database Schema**: Design and implement permission and role tables
+2. **Backend APIs**: Create permission management APIs
+3. **Frontend UI**: Build role and permission management interface
+4. **Middleware Integration**: Integrate permission checking throughout system
+5. **Testing & Validation**: Comprehensive testing of permission system
 
 ## Phase 5: Comprehensive Guest Management ❌ NOT STARTED
 
@@ -289,6 +395,7 @@ This document outlines the development phases and tasks for building a comprehen
 - **Phase 3**: ✅ **COMPLETED** - Real-time Operations Dashboard
   - ✅ **Phase 3.5**: Frontend Performance Layer (COMPLETED)
 - **Phase 4**: 🔄 **IN PROGRESS** - Enhanced User Management & Granular Permissions
+  - ✅ **Phase 4.1**: Granular Permission System Design (COMPLETED)
 - **Phase 5**: ❌ **NOT STARTED** - Comprehensive Guest Management
 - **Phase 6**: ❌ **NOT STARTED** - Service Orchestration & Vendor Management
 - **Phase 7**: ❌ **NOT STARTED** - Advanced Analytics & AI Features

@@ -50,9 +50,40 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 ### Phase 4: Enhanced User Management & Granular Permissions
 **Status**: 🔄 In Progress
 
-*   **[ ] Phase 4.1: Granular Permission System Design**: **PLANNING PHASE**. Designing flexible permission system with granular controls, role management, and property-based access.
+*   **[✅] Phase 4.1: Granular Permission System Design**: **COMPLETED**. Designed flexible permission system with granular controls, role management, and property-based access.
 *   **[ ] Phase 4.2: User Management Enhancement**: **PLANNING PHASE**. Complete user management interface with role assignment and permission validation.
 *   **[ ] Phase 4.3: Permission System Implementation**: **PLANNING PHASE**. Database schema, API endpoints, frontend interface, and middleware integration.
+
+### ✅ **Granular Permission System Design - COMPLETED**
+
+**Architecture Requirements (User Approved):**
+- **Very Granular Permissions**: `resource.action.scope.context` structure for all resources
+- **Mixed Property/Chain Permissions**: Chain-wide, property-specific, department-specific, and user-specific access
+- **Permission Management Hierarchy**: Super Admin → Admin → Manager with full audit trail
+- **Automatic Permission Structure**: Future features must follow the same permission structure
+
+**Permission System Architecture:**
+- **Permission Structure**: `resource.action.scope.context`
+- **Permission Examples**: `guests.read.own.property`, `users.create.role.chain`, `vendors.manage.services.property`
+- **Permission Types**: Chain-wide (`*.chain`), Property-specific (`*.property`), Department-specific (`*.department`), User-specific (`*.own`)
+
+**UI Design Specifications:**
+- **Super Admin Dashboard**: Role management with role cards and permission counts
+- **Role Editor Interface**: Role information, permission matrix, search and filter
+- **User Permission Assignment**: User list, individual permission editing, custom permissions
+- **Permission History & Audit Trail**: Comprehensive audit trail with filtering and export
+- **Permission Matrix View**: Overview table showing roles vs resources
+
+**Database Schema Design:**
+- **Roles table**: Basic role information and inheritance
+- **Permissions table**: Granular permission definitions
+- **Role permissions junction**: Role-permission assignments
+- **User roles junction**: User-role assignments with property context
+- **User custom permissions**: Individual user permission overrides
+- **Audit trail**: Complete history of all permission changes
+
+**Implementation Priority:**
+1. Database Schema → 2. Backend APIs → 3. Frontend UI → 4. Middleware Integration → 5. Testing & Validation
 
 ### Phase 5: Comprehensive Guest Management
 **Status**: ❌ Not Started
