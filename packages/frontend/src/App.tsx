@@ -1,26 +1,47 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
-import LoginForm from './components/auth/LoginForm';
-import RegisterForm from './components/auth/RegisterForm';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import Dashboard from './components/Dashboard';
-import { DashboardPage } from './pages/DashboardPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import ProfilePage from './pages/ProfilePage';
-import GuestsPage from './pages/GuestsPage';
-import VendorsPage from './pages/VendorsPage';
 import MainLayout from './components/layout/MainLayout';
-import UsersPage from './pages/UsersPage';
 import { UserRole } from '@attendandt/shared';
 import { ToastProvider } from './context/ToastContext';
+import { DashboardSkeleton, ProfileSkeleton, ListSkeleton, AuthSkeleton } from './components/skeletons';
 
+// Lazy load components for code splitting
+const LoginForm = React.lazy(() => import('./components/auth/LoginForm'));
+const RegisterForm = React.lazy(() => import('./components/auth/RegisterForm'));
+const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const GuestsPage = React.lazy(() => import('./pages/GuestsPage'));
+const VendorsPage = React.lazy(() => import('./pages/VendorsPage'));
+const UsersPage = React.lazy(() => import('./pages/UsersPage'));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center space-x-2">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      <span className="text-gray-600">Loading...</span>
+    </div>
+  </div>
+);
+
+// Enhanced React Query configuration for performance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes - data stays in cache for 10 minutes
+      retry: 2,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
+      // Keep previous data while fetching new data for better UX
+      placeholderData: (previousData) => previousData,
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
@@ -32,11 +53,24 @@ function App() {
         <AuthProvider>
           <Router>
             <Routes>
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/register" element={<RegisterForm />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              {/* Auth routes with lazy loading */}
+              <Route path="/login" element={
+                <Suspense fallback={<AuthSkeleton formType="login" />}>
+                  <LoginForm />
+                </Suspense>
+              } />
+              <Route path="/register" element={
+                <Suspense fallback={<AuthSkeleton formType="register" />}>
+                  <RegisterForm />
+                </Suspense>
+              } />
+              <Route path="/reset-password" element={
+                <Suspense fallback={<AuthSkeleton formType="reset" />}>
+                  <ResetPasswordPage />
+                </Suspense>
+              } />
               
-              {/* Routes with MainLayout */}
+              {/* Protected routes with MainLayout and lazy loading */}
               <Route 
                 path="/" 
                 element={
@@ -46,13 +80,23 @@ function App() {
                 }
               >
                 <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="profile" element={<ProfilePage />} />
+                <Route path="dashboard" element={
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <DashboardPage />
+                  </Suspense>
+                } />
+                <Route path="profile" element={
+                  <Suspense fallback={<ProfileSkeleton />}>
+                    <ProfilePage />
+                  </Suspense>
+                } />
                 <Route 
                   path="guests" 
                   element={
                     <ProtectedRoute roles={[UserRole.ADMIN, UserRole.STAFF]}>
-                      <GuestsPage />
+                      <Suspense fallback={<ListSkeleton />}>
+                        <GuestsPage />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -60,7 +104,9 @@ function App() {
                   path="vendors" 
                   element={
                     <ProtectedRoute roles={[UserRole.ADMIN, UserRole.STAFF]}>
-                      <VendorsPage />
+                      <Suspense fallback={<ListSkeleton />}>
+                        <VendorsPage />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -68,7 +114,9 @@ function App() {
                   path="users" 
                   element={
                     <ProtectedRoute roles={[UserRole.ADMIN]}>
-                      <UsersPage />
+                      <Suspense fallback={<ListSkeleton />}>
+                        <UsersPage />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />

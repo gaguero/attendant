@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { requireAuth } from '../middleware/auth.js';
+import { profileCache, invalidateUserCache } from '../middleware/cache.middleware.js';
 import multer from 'multer';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
@@ -14,9 +15,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * GET /me
- * Get current user's profile
+ * Get current user's profile with caching
  */
-router.get('/me', requireAuth, async (req: Request, res: Response) => {
+router.get('/me', requireAuth, profileCache, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const user = await prisma.user.findUnique({
@@ -68,6 +69,10 @@ router.put('/me', requireAuth, profileUpdateLimiter, async (req: Request, res: R
         theme: true,
       },
     });
+    
+    // Invalidate user cache after profile update
+    invalidateUserCache(userId);
+    
     return res.status(200).json({ success: true, data: updated });
   } catch (error) {
     logger.error('Update profile error', { error: error instanceof Error ? error.message : String(error) });

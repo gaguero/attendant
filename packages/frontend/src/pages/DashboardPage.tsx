@@ -67,7 +67,7 @@ interface DashboardData {
   };
 }
 
-export const DashboardPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -208,4 +208,6 @@ export const DashboardPage: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};
+
+export default DashboardPage; 

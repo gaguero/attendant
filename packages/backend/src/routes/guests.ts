@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { requireStaff } from '../middleware/rbac.js';
+import { guestListCache, invalidateGuestsCache } from '../middleware/cache.middleware.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
 import { CreateGuestDto, UpdateGuestDto } from '@attendandt/shared';
@@ -12,9 +13,9 @@ router.use(requireAuth, requireStaff);
 
 /**
  * GET /guests
- * Get a paginated list of guests
+ * Get a paginated list of guests with caching
  */
-router.get('/', async (req, res): Promise<void> => {
+router.get('/', guestListCache, async (req, res): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -57,6 +58,10 @@ router.post('/', async (req, res): Promise<void> => {
         createdById: req.user!.id,
       },
     });
+    
+    // Invalidate guests cache after creation
+    invalidateGuestsCache(req.user!.id);
+    
     res.status(201).json({ success: true, data: guest });
   } catch (error) {
     logger.error('Failed to create guest', { error });
@@ -97,6 +102,10 @@ router.put('/:id', async (req, res): Promise<void> => {
       where: { id: req.params.id },
       data: validatedData,
     });
+    
+    // Invalidate guests cache after update
+    invalidateGuestsCache(req.user!.id);
+    
     res.status(200).json({ success: true, data: guest });
     return;
   } catch (error) {
@@ -115,6 +124,10 @@ router.delete('/:id', async (req, res): Promise<void> => {
     await prisma.guest.delete({
       where: { id: req.params.id },
     });
+    
+    // Invalidate guests cache after deletion
+    invalidateGuestsCache(req.user!.id);
+    
     res.status(204).send();
     return;
   } catch (error) {

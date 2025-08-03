@@ -1,19 +1,24 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { DashboardService } from '../services/dashboard.service.js';
+import { OptimizedDashboardService } from '../services/optimized-dashboard.service.js';
+import { dashboardCache, getCacheStats, getCacheHealth } from '../middleware/cache.middleware.js';
+import { requireAuth } from '../middleware/auth.js';
 import { logger } from '../lib/logger.js';
 
-const router = express.Router();
+const router: express.Router = express.Router();
 const prisma = new PrismaClient();
 const dashboardService = new DashboardService(prisma);
+const optimizedDashboardService = new OptimizedDashboardService(prisma);
 
 /**
  * GET /api/dashboard
- * Get comprehensive dashboard data
+ * Get comprehensive dashboard data with caching
  */
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, dashboardCache, async (req, res) => {
   try {
-    const dashboardData = await dashboardService.getDashboardData();
+    const userId = req.user!.id;
+    const dashboardData = await optimizedDashboardService.getDashboardData(userId);
     
     res.json({
       success: true,
@@ -21,18 +26,29 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     logger.error('Error getting dashboard data:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get dashboard data'
-    });
+    // Fallback to legacy service if optimized service fails
+    try {
+      const fallbackData = await dashboardService.getDashboardData();
+      res.json({
+        success: true,
+        data: fallbackData,
+        fallback: true
+      });
+    } catch (fallbackError) {
+      logger.error('Fallback dashboard service also failed:', fallbackError);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get dashboard data'
+      });
+    }
   }
 });
 
 /**
  * GET /api/dashboard/metrics
- * Get key dashboard metrics
+ * Get key dashboard metrics with caching
  */
-router.get('/metrics', async (req, res) => {
+router.get('/metrics', requireAuth, dashboardCache, async (_req, res) => {
   try {
     const metrics = await dashboardService.getMetrics();
     
@@ -53,7 +69,7 @@ router.get('/metrics', async (req, res) => {
  * GET /api/dashboard/stats
  * Get real-time statistics
  */
-router.get('/stats', async (req, res) => {
+router.get('/stats', async (_req, res) => {
   try {
     const stats = await dashboardService.getRealTimeStats();
     
@@ -74,7 +90,7 @@ router.get('/stats', async (req, res) => {
  * GET /api/dashboard/alerts
  * Get recent alerts
  */
-router.get('/alerts', async (req, res) => {
+router.get('/alerts', async (_req, res) => {
   try {
     const alerts = await dashboardService.getRecentAlerts();
     
@@ -117,7 +133,7 @@ router.put('/alerts/:id/read', async (req, res) => {
  * GET /api/dashboard/sync-status
  * Get sync connection status
  */
-router.get('/sync-status', async (req, res) => {
+router.get('/sync-status', async (_req, res) => {
   try {
     const syncStatus = await dashboardService.getSyncStatus();
     
@@ -168,7 +184,7 @@ router.post('/alerts', async (req, res) => {
  * DELETE /api/dashboard/alerts/clear
  * Clear old alerts
  */
-router.delete('/alerts/clear', async (req, res) => {
+router.delete('/alerts/clear', async (_req, res) => {
   try {
     dashboardService.clearOldAlerts();
     
@@ -189,7 +205,7 @@ router.delete('/alerts/clear', async (req, res) => {
  * GET /api/dashboard/health
  * Get dashboard health status
  */
-router.get('/health', async (req, res) => {
+router.get('/health', async (_req, res) => {
   try {
     const [metrics, syncStatus] = await Promise.all([
       dashboardService.getMetrics(),
@@ -220,6 +236,64 @@ router.get('/health', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get dashboard health'
+    });
+  }
+});
+
+/**
+ * GET /api/dashboard/cache/stats
+ * Get cache performance statistics (admin only)
+ */
+router.get('/cache/stats', requireAuth, async (req, res) => {
+  try {
+    // Only allow admin users to access cache stats
+    if (req.user?.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. Admin role required.'
+      });
+    }
+
+    const cacheStats = getCacheStats();
+    
+    return res.json({
+      success: true,
+      data: cacheStats
+    });
+  } catch (error) {
+    logger.error('Error getting cache stats:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to get cache statistics'
+    });
+  }
+});
+
+/**
+ * GET /api/dashboard/cache/health
+ * Get cache health status (admin only)
+ */
+router.get('/cache/health', requireAuth, async (req, res) => {
+  try {
+    // Only allow admin users to access cache health
+    if (req.user?.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. Admin role required.'
+      });
+    }
+
+    const cacheHealth = getCacheHealth();
+    
+    return res.json({
+      success: true,
+      data: cacheHealth
+    });
+  } catch (error) {
+    logger.error('Error getting cache health:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to get cache health'
     });
   }
 });

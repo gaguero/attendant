@@ -49,7 +49,7 @@ const initialState: AuthState = {
   user: null,
   tokens: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Start with loading = true to check localStorage first
   error: null,
 };
 
@@ -201,6 +201,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Clear stored credentials and force login.
           handleLogout();
         }
+      } else {
+        // No stored auth tokens found - user needs to login
+        dispatch({ type: 'AUTH_LOGOUT' });
       }
     };
 

@@ -1,17 +1,17 @@
-import { type Request, type Response, type NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { verifyToken, extractTokenFromHeader } from '../lib/auth.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
+
+import { UserRole } from '@attendandt/shared';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
-    role: string;
+    role: UserRole;
   };
 }
-
-export type UserRole = 'ADMIN' | 'STAFF' | 'CONCIERGE' | 'USER';
 
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   try {
@@ -54,7 +54,7 @@ export function requireRole(allowedRoles: UserRole[]): (req: AuthenticatedReques
       return;
     }
 
-    if (!allowedRoles.includes(req.user.role as UserRole)) {
+    if (!allowedRoles.includes(req.user.role)) {
       res.status(403).json({ error: 'Insufficient permissions' });
       return;
     }

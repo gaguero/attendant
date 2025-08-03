@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
-import { hashPassword, comparePassword, generateToken, verifyToken } from '../lib/auth.js';
+import { hashPassword, comparePassword, generateToken, verifyToken, extractTokenFromHeader, blacklistToken } from '../lib/auth.js';
 import { 
   RegisterDto, 
   LoginDto, 
@@ -334,21 +334,40 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
  * POST /auth/logout
  * Logout user by blacklisting their token
  */
-router.post('/logout', requireAuth, async (req: Request, res: Response): Promise<void> => {
+router.post('/logout', async (req: Request, res: Response): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     const token = extractTokenFromHeader(authHeader);
 
     if (token) {
-      blacklistToken(token);
-      
-      logger.info('User logged out successfully', {
-        userId: req.user?.id,
-        email: req.user?.email,
-        ip: req.ip,
-      });
+      try {
+        // Try to blacklist the token (may fail if token is invalid, but that's ok)
+        blacklistToken(token);
+        
+        // Try to get user info for logging (may fail if token is expired)
+        const payload = verifyToken(token);
+        const user = await prisma.user.findUnique({
+          where: { id: payload.userId },
+          select: { id: true, email: true }
+        });
+        
+        logger.info('User logged out successfully', {
+          userId: user?.id,
+          email: user?.email,
+          ip: req.ip,
+        });
+      } catch (tokenError) {
+        // Token verification failed, but we still want to allow logout
+        logger.info('Logout with invalid/expired token', {
+          ip: req.ip,
+          tokenError: tokenError instanceof Error ? tokenError.message : 'Unknown token error'
+        });
+      }
+    } else {
+      logger.info('Logout without token', { ip: req.ip });
     }
 
+    // Always return success for logout - it should be forgiving
     res.status(200).json({
       success: true,
       message: 'Logout successful',
@@ -356,14 +375,13 @@ router.post('/logout', requireAuth, async (req: Request, res: Response): Promise
   } catch (error) {
     logger.error('Logout error', {
       error: error instanceof Error ? error.message : 'Unknown error',
-      userId: req.user?.id,
       ip: req.ip,
     });
 
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      message: 'Failed to logout',
+    // Still return success since logout should always work
+    res.status(200).json({
+      success: true,
+      message: 'Logout successful',
     });
   }
 });

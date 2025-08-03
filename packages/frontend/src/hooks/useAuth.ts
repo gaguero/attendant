@@ -23,8 +23,14 @@ export const useAuth = () => {
   };
 
   const logoutWithRedirect = async (from = '/login') => {
-    await logout();
-    navigate(from, { replace: true });
+    try {
+      await logout();
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Force navigation even if logout API fails
+      navigate(from, { replace: true });
+    }
   };
 
   const hasRole = (roles: UserRole | UserRole[]): boolean => {
@@ -62,6 +68,7 @@ export const useAuth = () => {
     login: loginWithRedirect,
     register: registerWithRedirect,
     logout: logoutWithRedirect,
+    logoutWithRedirect,
     refreshToken,
     clearError,
     forgotPassword,
