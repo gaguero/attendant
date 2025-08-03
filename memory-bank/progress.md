@@ -16,6 +16,8 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 
 **🔒 CRITICAL SECURITY FIXES**: **PRODUCTION READY** - Authentication vulnerabilities resolved, logout functionality working perfectly, and route protection enhanced.
 
+**🔄 PHASE 4: Enhanced User Management & Granular Permissions**: **IN PROGRESS** - Building a comprehensive, flexible granular permission system that can scale with the platform.
+
 ## Phase-by-Phase Progress
 
 ### Phase 1: Foundation & Core Integration
@@ -45,16 +47,26 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 *   **[✅] Phase 3.4: Error Handling**: Completed. Implemented graceful degradation for missing database columns and API failures.
 *   **[✅] Phase 3.5: Frontend Performance Layer**: **COMPLETED**. Implemented code splitting, React Query optimization, skeleton loading states, and navigation prefetching.
 
-### Phase 4: Service Orchestration & Vendor Management
+### Phase 4: Enhanced User Management & Granular Permissions
+**Status**: 🔄 In Progress
+
+*   **[ ] Phase 4.1: Granular Permission System Design**: **PLANNING PHASE**. Designing flexible permission system with granular controls, role management, and property-based access.
+*   **[ ] Phase 4.2: User Management Enhancement**: **PLANNING PHASE**. Complete user management interface with role assignment and permission validation.
+*   **[ ] Phase 4.3: Permission System Implementation**: **PLANNING PHASE**. Database schema, API endpoints, frontend interface, and middleware integration.
+
+### Phase 5: Comprehensive Guest Management
 **Status**: ❌ Not Started
 
-### Phase 5: Advanced Analytics & AI Features
+### Phase 6: Service Orchestration & Vendor Management
 **Status**: ❌ Not Started
 
-### Phase 6: Integration Ecosystem & Mobile
+### Phase 7: Advanced Analytics & AI Features
 **Status**: ❌ Not Started
 
-### Phase 7: Production Readiness & Advanced Monitoring
+### Phase 8: Integration Ecosystem & Mobile
+**Status**: ❌ Not Started
+
+### Phase 9: Production Readiness & Advanced Monitoring
 **Status**: 🔄 In Progress (40% Complete)
 
 *   **[✅] Authentication Security**: Fixed critical authentication vulnerabilities and logout functionality
@@ -96,6 +108,7 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 - **Logout Functionality**: Resolved non-responsive logout button by properly exporting `logoutWithRedirect` function from `useAuth` hook
 - **Route Protection**: Enhanced authentication state management and protected route logic
 - **Backend Logout Endpoint**: Removed `requireAuth` middleware from `/api/v1/auth/logout` to allow logout with expired tokens
+- **Dashboard Authentication**: Fixed dashboard API calls to include proper authentication headers
 
 **Production-Ready Authentication**
 - **Graceful Token Handling**: Backend logout endpoint now handles expired/invalid tokens gracefully
@@ -151,12 +164,22 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 
 ## What's Next
 
-1.  **Phase 4: Service Orchestration & Vendor Management**: Build vendor directory, service booking system, and vendor performance tracking.
-2.  **Phase 5: Advanced Analytics & AI Features**: Implement predictive analytics, AI-powered recommendations, and advanced reporting.
-3.  **Phase 6: Integration Ecosystem & Mobile**: Create mobile app and expand integration capabilities.
-4.  **Phase 7: Production Readiness & Advanced Monitoring**: Complete CI/CD pipeline, environment management, and monitoring setup.
+### **Immediate Priority: Phase 4 - Enhanced User Management & Granular Permissions**
+1. **Granular Permission System**: Design and implement flexible permission architecture
+2. **Role Management**: Dynamic role creation and management with property context
+3. **User Management Enhancement**: Complete user management with permission validation
 
-## Known Issues
+### **Following Priority: Phase 5 - Comprehensive Guest Management**
+1. **Guest Profile Enhancement**: Extended guest data and preferences
+2. **Mews Integration Enhancement**: Enhanced reservation management and sync
+3. **Guest Operations**: Advanced guest search, analytics, and workflows
+
+### **Future Priority: Phase 6 - Service Orchestration & Vendor Management**
+1. **Vendor Directory**: Comprehensive vendor profiles and service catalog
+2. **Service Booking System**: Booking interface and workflow
+3. **Service Integration**: User-service assignment and guest-service matching
+
+## Known Issues (Minor)
 
 *   ✅ **All Major Issues Resolved**: User registration, login, dashboard API, frontend rendering, authentication security, and logout functionality all working correctly.
 *   ⚠️ **Mews WebSocket**: Currently disconnected (expected in development environment)
@@ -172,3 +195,4 @@ This document tracks the high-level progress of the Smart Hospitality Operations
 *   **Code Splitting**: Frontend bundle optimization and lazy loading implemented
 *   **Database Optimization**: Query optimization and indexing for better performance
 *   **Professional UI**: Skeleton loading states and smooth navigation experience
+*   **Strategic Planning**: Redefined development phases to focus on foundation-first approach

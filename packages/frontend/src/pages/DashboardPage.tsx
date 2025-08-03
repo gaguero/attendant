@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { httpClient } from '../api/http';
 import { DashboardMetrics } from '../components/dashboard/DashboardMetrics';
 import { RealTimeStats } from '../components/dashboard/RealTimeStats';
 import { AlertsPanel } from '../components/dashboard/AlertsPanel';
@@ -76,12 +77,7 @@ const DashboardPage: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/v1/dashboard');
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
-      
-      const result = await response.json();
+      const result = await httpClient('/dashboard', {}, true); // true = authenticated
       if (result.success) {
         setDashboardData(result.data);
         setLastUpdated(new Date());
@@ -107,14 +103,12 @@ const DashboardPage: React.FC = () => {
 
   const handleAlertRead = async (alertId: string) => {
     try {
-      const response = await fetch(`/api/v1/dashboard/alerts/${alertId}/read`, {
+      await httpClient(`/dashboard/alerts/${alertId}/read`, {
         method: 'PUT'
-      });
+      }, true); // true = authenticated
       
-      if (response.ok) {
-        // Refresh dashboard data to get updated alerts
-        fetchDashboardData();
-      }
+      // Refresh dashboard data to get updated alerts
+      fetchDashboardData();
     } catch (err) {
       console.error('Error marking alert as read:', err);
     }
